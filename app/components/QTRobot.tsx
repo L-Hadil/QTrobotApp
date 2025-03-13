@@ -77,7 +77,7 @@ export default function QTRobot() {
         <img
           src="https://docs.luxai.com/assets/images/QT_QT_neutral_state_blinking-5d8d7cb24735325cf256575d9229db11.gif"
           alt="QTrobot Blinking Face"
-          className="absolute top-[90px] left-[52px] w-[195px] h-auto"
+          className="absolute top-[81px] left-[43px] w-[210px] h-auto rounded-xl"
         />
       </div>
 
