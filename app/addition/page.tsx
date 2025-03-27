@@ -1,17 +1,7 @@
 "use client";
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { Geist, Geist_Mono } from "next/font/google";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import Link from "next/link";
 
 const QTRobot = dynamic(() => import("@/app/components/QTRobot"), { ssr: false });
 
@@ -47,31 +37,94 @@ export default function Addition() {
   };
 
   return (
-    <div className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-        <h1 className="text-3xl font-bold text-black mb-6">Addition</h1>
+    <div style={{
+      textAlign: "center",
+      minHeight: "100vh",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "20px",
+      color: "black",
+      background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)", // Added gradient background
+    }}>
+      {/* Robot QT */}
+      <div style={{ marginBottom: "2rem" }}>
         <QTRobot expression={getRobotExpression()} />
-        
-        <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-          <h2 className="text-2xl text-black font-semibold mb-2">
-            {question.num1} + {question.num2} = ?
-          </h2>
-          <input
-            type="number"
-            value={userAnswer}
-            onChange={(e) => setUserAnswer(e.target.value)}
-            placeholder="Votre réponse..."
-            className="p-3 text-lg w-40 text-center text-black border border-gray-300 rounded mb-4"
-          />
-          <button
-            onClick={checkAnswer}
-            className="px-6 py-3 bg-blue-500 text-white text-lg rounded hover:bg-blue-600 transition"
-          >
-            Valider ✅
-          </button>
-          {feedback && <p className="text-xl text-black mt-4">{feedback}</p>}
-        </div>
       </div>
+
+      <div style={{
+        backgroundColor: "white",
+        padding: "2rem",
+        borderRadius: "12px",
+        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+        width: "100%",
+        maxWidth: "500px",
+      }}>
+        <h1 style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "1.5rem" }}>Addition</h1>
+        
+        <h2 style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "1rem" }}>
+          {question.num1} + {question.num2} = ?
+        </h2>
+        
+        <input
+          type="number"
+          value={userAnswer}
+          onChange={(e) => setUserAnswer(e.target.value)}
+          placeholder="Votre réponse..."
+          style={{
+            padding: "0.75rem",
+            fontSize: "1rem",
+            width: "80%",
+            maxWidth: "200px",
+            textAlign: "center",
+            border: "1px solid #d1d5db",
+            borderRadius: "0.375rem",
+            marginBottom: "1rem",
+          }}
+        />
+        
+        <button
+          onClick={checkAnswer}
+          style={{
+            padding: "0.75rem 1.5rem",
+            backgroundColor: "#3b82f6",
+            color: "white",
+            fontSize: "1rem",
+            borderRadius: "0.375rem",
+            border: "none",
+            cursor: "pointer",
+            transition: "background-color 0.2s",
+          }}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#2563eb"}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#3b82f6"}
+        >
+          Valider ✅
+        </button>
+        
+        {feedback && (
+          <p style={{
+            fontSize: "1.25rem",
+            marginTop: "1rem",
+            color: feedback.includes("Bravo") ? "#10b981" : "#ef4444",
+          }}>
+            {feedback}
+          </p>
+        )}
+      </div>
+
+      <Link href="/" style={{
+        marginTop: "2rem",
+        backgroundColor: "#001500",
+        color: "white",
+        padding: "0.75rem 1.5rem",
+        borderRadius: "9999px",
+        textDecoration: "none",
+        fontSize: "1rem",
+        transition: "background-color 0.2s",
+      }}>
+        Retour en arriere
+      </Link>
     </div>
   );
 }
