@@ -56,7 +56,7 @@ export default function MultiplicationTable() {
       const timer = setTimeout(() => {
         setShowCelebration(false);
         handleNextTable();
-      }, 3000);
+      }, 3);
 
       return () => clearTimeout(timer);
     }
