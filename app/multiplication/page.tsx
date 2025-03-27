@@ -46,8 +46,11 @@ export default function Multiplication() {
       justifyContent: "center",
       padding: "20px",
       color: "black",
-      background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
-    }}>
+      backgroundImage: "url('/images/background-image.jpg')",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundAttachment: "fixed", // 
+      }}>
       {/* Robot QT */}
       <div style={{ marginBottom: "2rem" }}>
         <QTRobot expression={getRobotExpression()} />
@@ -123,7 +126,7 @@ export default function Multiplication() {
         fontSize: "1rem",
         transition: "background-color 0.2s",
       }}>
-        Back to Home
+        Retour en arriere
       </Link>
     </div>
   );
