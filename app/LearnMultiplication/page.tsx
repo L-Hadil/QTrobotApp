@@ -10,46 +10,35 @@ export default function MultiplicationTable() {
   const [completedTables, setCompletedTables] = useState<number[]>([]);
   const [checkedMultipliers, setCheckedMultipliers] = useState<number[]>([]);
   const [showCelebration, setShowCelebration] = useState(false);
-  const [timeLeft, setTimeLeft] = useState<number>(30);
-  const [showTimeUpNotification, setShowTimeUpNotification] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<number>(30); // 30 seconds per table
+  const [isPaused, setIsPaused] = useState<boolean>(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const isTableComplete = checkedMultipliers.length === 10;
 
-  const handleNextTable = () => {
-    if (currentTable < 10) {
-      // Add 30s bonus if table was completed
-      const newTime = isTableComplete ? timeLeft + 30 : 30;
-      
-      setCurrentTable(currentTable + 1);
-      setCheckedMultipliers([]);
-      setTimeLeft(newTime);
-    }
-  };
   // Timer countdown
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    
-    if (isTableComplete && !completedTables.includes(currentTable)) {
-      setCompletedTables([...completedTables, currentTable]);
-      setShowCelebration(true);
-      
-      timer = setTimeout(() => {
-        setShowCelebration(false);
-        handleNextTable();
-      }, 3);
+    if (!isPaused && timeLeft > 0 && !isTableComplete) {
+      timerRef.current = setInterval(() => {
+        setTimeLeft(prev => prev - 1);
+      }, 1000);
+    } else if (timeLeft === 0 && !isTableComplete) {
+      // Time's up - auto advance to next table
+      handleNextTable();
     }
-  
+
     return () => {
-      if (timer) clearTimeout(timer);
+      if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isTableComplete, currentTable, completedTables, handleNextTable]);
+  }, [timeLeft, isPaused, isTableComplete]);
 
-  const add30Seconds = () => {
-    setTimeLeft(prev => prev + 30);
+  const handleNextTable = () => {
+    if (currentTable < 10) {
+      setCurrentTable(currentTable + 1);
+      setCheckedMultipliers([]);
+      setTimeLeft(30); // Reset timer for next table
+    }
   };
-
-
 
   const toggleMultiplierCheck = (multiplier: number) => {
     if (checkedMultipliers.includes(multiplier)) {
@@ -75,7 +64,7 @@ export default function MultiplicationTable() {
 
   const getRobotExpression = () => {
     if (showCelebration) return "happy";
-    if (timeLeft < 10) return "confused";
+    if (timeLeft < 10) return "confused"; // Show concern when time is running low
     if (checkedMultipliers.length > 0) return "neutral";
     return "neutral";
   };
@@ -84,14 +73,6 @@ export default function MultiplicationTable() {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  };
-
-  const getTableColor = (num: number) => {
-    if (completedTables.includes(num)) return "#10b981"; // Vert si complété
-    if (num === currentTable) {
-      return timeLeft === 0 ? "#ef4444" : "#3b82f6"; // Rouge si temps écoulé, sinon bleu
-    }
-    return "#e5e7eb"; // Gris pour les tables non commencées
   };
 
   return (
@@ -128,26 +109,12 @@ export default function MultiplicationTable() {
           }}>
             <h2 style={{ fontSize: "2rem", color: "#10b981" }}>Félicitations! 🎉</h2>
             <p style={{ fontSize: "1.2rem" }}>Vous avez maîtrisé la table de {currentTable}!</p>
-            <p style={{ fontSize: "1rem", color: "#10b981" }}>+30 secondes bonus!</p>
+            {currentTable < 10 ? (
+              <p style={{ fontSize: "1rem" }}>Passons à la table de {currentTable + 1}...</p>
+            ) : (
+              <p style={{ fontSize: "1rem" }}>Vous avez terminé toutes les tables! 👏</p>
+            )}
           </div>
-        </div>
-      )}
-
-      {/* Time's Up Notification */}
-      {showTimeUpNotification && (
-        <div style={{
-          position: "fixed",
-          top: "20px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          backgroundColor: "#ef4444",
-          color: "white",
-          padding: "1rem 2rem",
-          borderRadius: "8px",
-          zIndex: 100,
-          animation: "fadeInOut 3s forwards",
-        }}>
-          Temps écoulé! Passage à la table suivante...
         </div>
       )}
 
@@ -176,17 +143,17 @@ export default function MultiplicationTable() {
           {/* Timer Controls */}
           <div style={{ margin: "1rem 0", display: "flex", gap: "10px", justifyContent: "center" }}>
             <button
-              onClick={add30Seconds}
+              onClick={() => setIsPaused(!isPaused)}
               style={{
                 padding: "0.5rem 1rem",
-                backgroundColor: "#10b981",
+                backgroundColor: isPaused ? "#10b981" : "#ef4444",
                 color: "white",
                 border: "none",
                 borderRadius: "4px",
                 cursor: "pointer",
               }}
             >
-              +30 secondes
+              {isPaused ? "Reprendre" : "Pause"}
             </button>
             <button
               onClick={handleNextTable}
@@ -219,7 +186,11 @@ export default function MultiplicationTable() {
                     width: "30px",
                     height: "30px",
                     borderRadius: "50%",
-                    backgroundColor: getTableColor(num),
+                    backgroundColor: completedTables.includes(num) 
+                      ? "#10b981" 
+                      : num === currentTable 
+                        ? "#3b82f6" 
+                        : "#e5e7eb",
                     color: completedTables.includes(num) || num === currentTable 
                       ? "white" 
                       : "black",
@@ -234,6 +205,7 @@ export default function MultiplicationTable() {
                       setCurrentTable(num);
                       setCheckedMultipliers([]);
                       setTimeLeft(30);
+                      setIsPaused(false);
                     }
                   }}
                 >
@@ -329,16 +301,6 @@ export default function MultiplicationTable() {
       }}>
         Retour à l'accueil
       </Link>
-
-      {/* Add this to your global CSS */}
-      <style jsx global>{`
-        @keyframes fadeInOut {
-          0% { opacity: 0; top: 0; }
-          10% { opacity: 1; top: 20px; }
-          90% { opacity: 1; top: 20px; }
-          100% { opacity: 0; top: 0; }
-        }
-      `}</style>
     </div>
   );
 }
