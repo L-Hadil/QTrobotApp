@@ -8,7 +8,7 @@ export default function Multiplication() {
   function generateQuestion() {
     const num1 = Math.floor(Math.random() * 10) + 1;
     const num2 = Math.floor(Math.random() * 10) + 1;
-    return { num1, num2, answer: num1 * num2 }; // Changé pour la multiplication
+    return { num1, num2, answer: num1 * num2 };
   }
 
   const [question, setQuestion] = useState(generateQuestion());
@@ -29,10 +29,17 @@ export default function Multiplication() {
     }, 3000);
   };
 
+  // Determine robot expression
+  const getRobotExpression = () => {
+    if (feedback.includes("Bravo")) return "happy";
+    if (feedback.includes("Oups")) return "sad"; // Sad when wrong
+    return "neutral"; // Default expression
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <h1 className="text-3xl font-bold text-black mb-6">Multiplication</h1> {/* Titre changé */}
-      <QTRobot expression={feedback.includes("Bravo") ? "happy" : "confused"} />
+      <h1 className="text-3xl font-bold text-black mb-6">Addition</h1>
+      <QTRobot expression={getRobotExpression()} /> {/* Updated expression logic */}
       
       <div className="bg-white p-6 rounded-lg shadow-lg text-center">
         <h2 className="text-2xl text-black font-semibold mb-2">
