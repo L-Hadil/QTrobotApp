@@ -34,6 +34,13 @@ export default function Home() {
       icon: <FaDivide />,
       image: "/images/division.jpg", // Chemin de l'image
     },
+    {
+      id: 3,
+      title: "Learn Multiplication",
+      link: "/LearnMultiplication",
+      icon: <FaDivide />,
+      image: "/images/multiplication.jpg", // Chemin de l'image
+    },
   ];
 
   return (
