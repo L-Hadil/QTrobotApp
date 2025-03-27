@@ -48,7 +48,7 @@ export default function Home() {
     }}>
       {/* Conteneur pour le robot */}
       <div style={{ marginBottom: "2rem" }}>
-        <QTRobot expression={currentExpression} />
+        <QTRobot expression={"neutral"} />
       </div>
 
       {/* Contenu sous le robot */}

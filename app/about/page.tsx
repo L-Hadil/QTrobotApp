@@ -20,7 +20,7 @@ export default function About() {
     }}>
       {/* Robot QT */}
       <div style={{ marginBottom: "2rem" }}>
-        <QTRobot expression="happy" />
+        <QTRobot expression="neutral" />
       </div>
 
       {/* Titre et texte */}
