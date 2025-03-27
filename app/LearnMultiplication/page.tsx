@@ -10,33 +10,46 @@ export default function MultiplicationTable() {
   const [completedTables, setCompletedTables] = useState<number[]>([]);
   const [checkedMultipliers, setCheckedMultipliers] = useState<number[]>([]);
   const [showCelebration, setShowCelebration] = useState(false);
-  const [timeLeft, setTimeLeft] = useState<number>(30); // 30 seconds per table
-  const [isPaused, setIsPaused] = useState<boolean>(false);
+  const [timeLeft, setTimeLeft] = useState<number>(30);
+  const [showTimeUpNotification, setShowTimeUpNotification] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const isTableComplete = checkedMultipliers.length === 10;
 
   // Timer countdown
   useEffect(() => {
-    if (!isPaused && timeLeft > 0 && !isTableComplete) {
+    if (timeLeft > 0 && !isTableComplete) {
       timerRef.current = setInterval(() => {
         setTimeLeft(prev => prev - 1);
       }, 1000);
     } else if (timeLeft === 0 && !isTableComplete) {
-      // Time's up - auto advance to next table
-      handleNextTable();
+      // Time's up - show notification and advance to next table
+      setShowTimeUpNotification(true);
+      const notificationTimer = setTimeout(() => {
+        setShowTimeUpNotification(false);
+        handleNextTable();
+      }, 3000);
+      
+      return () => clearTimeout(notificationTimer);
     }
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [timeLeft, isPaused, isTableComplete]);
+  }, [timeLeft, isTableComplete]);
+
+  const add30Seconds = () => {
+    setTimeLeft(prev => prev + 30);
+  };
 
   const handleNextTable = () => {
     if (currentTable < 10) {
+      // Add 30s bonus if table was completed
+      const newTime = isTableComplete ? timeLeft + 30 : 30;
+      
       setCurrentTable(currentTable + 1);
       setCheckedMultipliers([]);
-      setTimeLeft(30); // Reset timer for next table
+      setTimeLeft(newTime);
     }
   };
 
@@ -64,7 +77,7 @@ export default function MultiplicationTable() {
 
   const getRobotExpression = () => {
     if (showCelebration) return "happy";
-    if (timeLeft < 10) return "confused"; // Show concern when time is running low
+    if (timeLeft < 10) return "confused";
     if (checkedMultipliers.length > 0) return "neutral";
     return "neutral";
   };
@@ -73,6 +86,14 @@ export default function MultiplicationTable() {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  const getTableColor = (num: number) => {
+    if (completedTables.includes(num)) return "#10b981"; // Vert si complété
+    if (num === currentTable) {
+      return timeLeft === 0 ? "#ef4444" : "#3b82f6"; // Rouge si temps écoulé, sinon bleu
+    }
+    return "#e5e7eb"; // Gris pour les tables non commencées
   };
 
   return (
@@ -109,12 +130,26 @@ export default function MultiplicationTable() {
           }}>
             <h2 style={{ fontSize: "2rem", color: "#10b981" }}>Félicitations! 🎉</h2>
             <p style={{ fontSize: "1.2rem" }}>Vous avez maîtrisé la table de {currentTable}!</p>
-            {currentTable < 10 ? (
-              <p style={{ fontSize: "1rem" }}>Passons à la table de {currentTable + 1}...</p>
-            ) : (
-              <p style={{ fontSize: "1rem" }}>Vous avez terminé toutes les tables! 👏</p>
-            )}
+            <p style={{ fontSize: "1rem", color: "#10b981" }}>+30 secondes bonus!</p>
           </div>
+        </div>
+      )}
+
+      {/* Time's Up Notification */}
+      {showTimeUpNotification && (
+        <div style={{
+          position: "fixed",
+          top: "20px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          backgroundColor: "#ef4444",
+          color: "white",
+          padding: "1rem 2rem",
+          borderRadius: "8px",
+          zIndex: 100,
+          animation: "fadeInOut 3s forwards",
+        }}>
+          Temps écoulé! Passage à la table suivante...
         </div>
       )}
 
@@ -143,17 +178,17 @@ export default function MultiplicationTable() {
           {/* Timer Controls */}
           <div style={{ margin: "1rem 0", display: "flex", gap: "10px", justifyContent: "center" }}>
             <button
-              onClick={() => setIsPaused(!isPaused)}
+              onClick={add30Seconds}
               style={{
                 padding: "0.5rem 1rem",
-                backgroundColor: isPaused ? "#10b981" : "#ef4444",
+                backgroundColor: "#10b981",
                 color: "white",
                 border: "none",
                 borderRadius: "4px",
                 cursor: "pointer",
               }}
             >
-              {isPaused ? "Reprendre" : "Pause"}
+              +30 secondes
             </button>
             <button
               onClick={handleNextTable}
@@ -186,11 +221,7 @@ export default function MultiplicationTable() {
                     width: "30px",
                     height: "30px",
                     borderRadius: "50%",
-                    backgroundColor: completedTables.includes(num) 
-                      ? "#10b981" 
-                      : num === currentTable 
-                        ? "#3b82f6" 
-                        : "#e5e7eb",
+                    backgroundColor: getTableColor(num),
                     color: completedTables.includes(num) || num === currentTable 
                       ? "white" 
                       : "black",
@@ -205,7 +236,6 @@ export default function MultiplicationTable() {
                       setCurrentTable(num);
                       setCheckedMultipliers([]);
                       setTimeLeft(30);
-                      setIsPaused(false);
                     }
                   }}
                 >
@@ -301,6 +331,16 @@ export default function MultiplicationTable() {
       }}>
         Retour à l'accueil
       </Link>
+
+      {/* Add this to your global CSS */}
+      <style jsx global>{`
+        @keyframes fadeInOut {
+          0% { opacity: 0; top: 0; }
+          10% { opacity: 1; top: 20px; }
+          90% { opacity: 1; top: 20px; }
+          100% { opacity: 0; top: 0; }
+        }
+      `}</style>
     </div>
   );
 }
