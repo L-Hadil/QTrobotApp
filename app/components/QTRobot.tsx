@@ -17,7 +17,7 @@ const QTRobot = ({ expression }: QTRobotProps) => {
           setGifUrl("/gifs/QT_QT_confused.gif");
           break;
         case "sad":
-          setGifUrl("/gifs/QT_QT_cry.gif");
+          setGifUrl("/gifs/QT_QT_sad.gif");
           break;
         default:
           setGifUrl("/gifs/QT_QT_neutral.gif");
