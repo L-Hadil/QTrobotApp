@@ -1,6 +1,6 @@
 "use client";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "app/globals.css"
 import { useState } from "react";
 import dynamic from "next/dynamic";
 
