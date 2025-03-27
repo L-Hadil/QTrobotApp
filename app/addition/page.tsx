@@ -1,7 +1,21 @@
 "use client";
-
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
 import { useState } from "react";
 import dynamic from "next/dynamic";
+
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+
 
 const QTRobot = dynamic(() => import("@/app/components/QTRobot"), { ssr: false });
 export default function Addition() {
@@ -37,6 +51,7 @@ export default function Addition() {
   };
 
   return (
+    <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <h1 className="text-3xl font-bold text-black mb-6">Addition</h1>
       <QTRobot expression={getRobotExpression()} /> {/* Updated expression logic */}
@@ -61,7 +76,7 @@ export default function Addition() {
         {feedback && <p className="text-xl text-black mt-4">{feedback}</p>}
       </div>
     </div>
-    
+    </body>
   );
 
 }
