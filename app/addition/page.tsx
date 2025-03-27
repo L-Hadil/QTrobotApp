@@ -46,7 +46,10 @@ export default function Addition() {
       justifyContent: "center",
       padding: "20px",
       color: "black",
-      background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)", // Added gradient background
+      backgroundImage: "url('/images/background-image.jpg')",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundAttachment: "fixed", // 
     }}>
       {/* Robot QT */}
       <div style={{ marginBottom: "2rem" }}>
