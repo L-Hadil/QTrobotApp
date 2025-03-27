@@ -32,7 +32,7 @@ export default function Addition() {
   // Determine robot expression
   const getRobotExpression = () => {
     if (feedback.includes("Bravo")) return "happy";
-    if (feedback.includes("Oups")) return "sad"; // Sad when wrong
+    if (feedback.includes("Oups")) return "cry"; // Sad when wrong
     return "neutral"; // Default expression
   };
 
