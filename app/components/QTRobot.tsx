@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 
 interface QTRobotProps {
-  expression: "happy" | "confused"| "sad" | "neutral";
+  expression: "happy" | "confused"| "cry" | "neutral";
 }
 
 const QTRobot = ({ expression }: QTRobotProps) => {
@@ -16,8 +16,8 @@ const QTRobot = ({ expression }: QTRobotProps) => {
         case "confused":
           setGifUrl("/gifs/QT_QT_confused.gif");
           break;
-        case "sad":
-          setGifUrl("/gifs/QT_QT_sad.gif");
+        case "cry":
+          setGifUrl("/gifs/QT_QT_cry.gif");
           break;
         default:
           setGifUrl("/gifs/QT_QT_neutral.gif");

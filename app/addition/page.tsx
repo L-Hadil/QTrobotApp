@@ -29,10 +29,17 @@ export default function Addition() {
     }, 3000);
   };
 
+  // Determine robot expression
+  const getRobotExpression = () => {
+    if (feedback.includes("Bravo")) return "happy";
+    if (feedback.includes("Oups")) return "cry"; // Sad when wrong
+    return "neutral"; // Default expression
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <h1 className="text-3xl font-bold text-black mb-6">Addition</h1>
-      <QTRobot expression={feedback.includes("Bravo") ? "happy" : "confused"} />
+      <QTRobot expression={getRobotExpression()} /> {/* Updated expression logic */}
       
       <div className="bg-white p-6 rounded-lg shadow-lg text-center">
         <h2 className="text-2xl text-black font-semibold mb-2">
@@ -54,5 +61,7 @@ export default function Addition() {
         {feedback && <p className="text-xl text-black mt-4">{feedback}</p>}
       </div>
     </div>
+    
   );
+
 }
