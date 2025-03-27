@@ -1,29 +1,51 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
 const QTRobot = dynamic(() => import("@/app/components/QTRobot"), { ssr: false });
 
 export default function MultiplicationTable() {
-  const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
-  const [checkedNumbers, setCheckedNumbers] = useState<number[]>([]);
+  const [currentTable, setCurrentTable] = useState<number>(1);
+  const [completedTables, setCompletedTables] = useState<number[]>([]);
+  const [checkedMultipliers, setCheckedMultipliers] = useState<number[]>([]);
+  const [showCelebration, setShowCelebration] = useState(false);
 
-  const handleNumberSelect = (num: number) => {
-    setSelectedNumber(num);
-  };
+  // Check if current table is completed
+  const isTableComplete = checkedMultipliers.length === 10;
 
-  const toggleCheckNumber = (num: number) => {
-    if (checkedNumbers.includes(num)) {
-      setCheckedNumbers(checkedNumbers.filter(n => n !== num));
+  // Handle checking multipliers
+  const toggleMultiplierCheck = (multiplier: number) => {
+    if (checkedMultipliers.includes(multiplier)) {
+      setCheckedMultipliers(checkedMultipliers.filter(m => m !== multiplier));
     } else {
-      setCheckedNumbers([...checkedNumbers, num]);
+      setCheckedMultipliers([...checkedMultipliers, multiplier]);
     }
   };
 
-  // Determine robot expression based on interaction
+  // Progress to next table when current is completed
+  useEffect(() => {
+    if (isTableComplete && !completedTables.includes(currentTable)) {
+      setCompletedTables([...completedTables, currentTable]);
+      setShowCelebration(true);
+      
+      // Auto-advance to next table after celebration
+      const timer = setTimeout(() => {
+        setShowCelebration(false);
+        if (currentTable < 10) {
+          setCurrentTable(currentTable + 1);
+          setCheckedMultipliers([]);
+        }
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isTableComplete, currentTable, completedTables]);
+
+  // Determine robot expression
   const getRobotExpression = () => {
-    if (checkedNumbers.length > 0) return "happy";
+    if (showCelebration) return "happy";
+    if (checkedMultipliers.length > 0) return "neutral";
     return "neutral";
   };
 
@@ -39,6 +61,37 @@ export default function MultiplicationTable() {
       color: "black",
       background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
     }}>
+      {/* Celebration Message */}
+      {showCelebration && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.7)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 100,
+        }}>
+          <div style={{
+            backgroundColor: "white",
+            padding: "2rem",
+            borderRadius: "12px",
+            maxWidth: "500px",
+          }}>
+            <h2 style={{ fontSize: "2rem", color: "#10b981" }}>Félicitations! 🎉</h2>
+            <p style={{ fontSize: "1.2rem" }}>Vous avez maîtrisé la table de {currentTable}!</p>
+            {currentTable < 10 ? (
+              <p style={{ fontSize: "1rem" }}>Passons à la table de {currentTable + 1}...</p>
+            ) : (
+              <p style={{ fontSize: "1rem" }}>Vous avez terminé toutes les tables! 👏</p>
+            )}
+          </div>
+        </div>
+      )}
+
       <div style={{
         display: "flex",
         flexDirection: "row",
@@ -50,32 +103,46 @@ export default function MultiplicationTable() {
         {/* QT Robot Section */}
         <div style={{ flex: 1 }}>
           <QTRobot expression={getRobotExpression()} />
-          <div style={{ marginTop: "20px" }}>
-            <h2 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>Select a Number</h2>
+          
+          {/* Progress Tracker */}
+          <div style={{ marginTop: "2rem" }}>
+            <h3 style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>Progrès</h3>
             <div style={{
               display: "flex",
               flexWrap: "wrap",
-              gap: "10px",
+              gap: "8px",
               justifyContent: "center"
             }}>
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
-                <button
+                <div
                   key={num}
-                  onClick={() => handleNumberSelect(num)}
                   style={{
-                    width: "40px",
-                    height: "40px",
+                    width: "30px",
+                    height: "30px",
                     borderRadius: "50%",
-                    backgroundColor: selectedNumber === num ? "#3b82f6" : "#e5e7eb",
-                    color: selectedNumber === num ? "white" : "black",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: "1rem",
+                    backgroundColor: completedTables.includes(num) 
+                      ? "#10b981" 
+                      : num === currentTable 
+                        ? "#3b82f6" 
+                        : "#e5e7eb",
+                    color: completedTables.includes(num) || num === currentTable 
+                      ? "white" 
+                      : "black",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                     fontWeight: "bold",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    if (!completedTables.includes(num)) {
+                      setCurrentTable(num);
+                      setCheckedMultipliers([]);
+                    }
                   }}
                 >
                   {num}
-                </button>
+                </div>
               ))}
             </div>
           </div>
@@ -89,53 +156,66 @@ export default function MultiplicationTable() {
           borderRadius: "12px",
           boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
         }}>
-          <h1 style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "1.5rem" }}>
-            Multiplication Table
+          <h1 style={{ 
+            fontSize: "2rem", 
+            fontWeight: "bold", 
+            marginBottom: "1.5rem",
+            color: completedTables.includes(currentTable) ? "#10b981" : "inherit"
+          }}>
+            Table de {currentTable}
+            {completedTables.includes(currentTable) && " ✓"}
           </h1>
           
-          {selectedNumber ? (
-            <div>
-              <h2 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>
-                Table of {selectedNumber}
-              </h2>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <tbody>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(multiplier => (
-                    <tr key={multiplier}>
-                      <td style={{ 
-                        padding: "0.5rem",
-                        textAlign: "right",
-                        borderBottom: "1px solid #e5e7eb"
-                      }}>
-                        {selectedNumber} × {multiplier} =
-                      </td>
-                      <td style={{ 
-                        padding: "0.5rem",
-                        textAlign: "left",
-                        borderBottom: "1px solid #e5e7eb"
-                      }}>
-                        {selectedNumber * multiplier}
-                      </td>
-                      <td style={{ padding: "0.5rem" }}>
-                        <input
-                          type="checkbox"
-                          checked={checkedNumbers.includes(multiplier)}
-                          onChange={() => toggleCheckNumber(multiplier)}
-                          style={{
-                            width: "20px",
-                            height: "20px",
-                            cursor: "pointer",
-                          }}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p style={{ fontSize: "1.2rem", color: "#6b7280" }}>
-              Select a number from 1 to 10 to see its multiplication table
+          <table style={{ 
+            width: "100%", 
+            borderCollapse: "collapse",
+            opacity: completedTables.includes(currentTable) ? 0.7 : 1
+          }}>
+            <tbody>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(multiplier => (
+                <tr key={multiplier}>
+                  <td style={{ 
+                    padding: "0.5rem",
+                    textAlign: "right",
+                    borderBottom: "1px solid #e5e7eb",
+                    textDecoration: checkedMultipliers.includes(multiplier) ? "line-through" : "none"
+                  }}>
+                    {currentTable} × {multiplier} =
+                  </td>
+                  <td style={{ 
+                    padding: "0.5rem",
+                    textAlign: "left",
+                    borderBottom: "1px solid #e5e7eb",
+                    fontWeight: "bold"
+                  }}>
+                    {currentTable * multiplier}
+                  </td>
+                  <td style={{ padding: "0.5rem" }}>
+                    <input
+                      type="checkbox"
+                      checked={checkedMultipliers.includes(multiplier) || completedTables.includes(currentTable)}
+                      onChange={() => toggleMultiplierCheck(multiplier)}
+                      disabled={completedTables.includes(currentTable)}
+                      style={{
+                        width: "20px",
+                        height: "20px",
+                        cursor: "pointer",
+                        accentColor: "#10b981",
+                      }}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {isTableComplete && !completedTables.includes(currentTable) && (
+            <p style={{ 
+              marginTop: "1rem",
+              color: "#10b981",
+              fontWeight: "bold"
+            }}>
+              Bravo! Vous avez complété cette table! ✔️
             </p>
           )}
         </div>
@@ -151,7 +231,7 @@ export default function MultiplicationTable() {
         fontSize: "1rem",
         transition: "background-color 0.2s",
       }}>
-        Back to Home
+        Retour à l'accueil
       </Link>
     </div>
   );
