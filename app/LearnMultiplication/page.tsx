@@ -16,32 +16,6 @@ export default function MultiplicationTable() {
 
   const isTableComplete = checkedMultipliers.length === 10;
 
-  // Timer countdown
-  useEffect(() => {
-    if (timeLeft > 0 && !isTableComplete) {
-      timerRef.current = setInterval(() => {
-        setTimeLeft(prev => prev - 1);
-      }, 1000);
-    } else if (timeLeft === 0 && !isTableComplete) {
-      // Time's up - show notification and advance to next table
-      setShowTimeUpNotification(true);
-      const notificationTimer = setTimeout(() => {
-        setShowTimeUpNotification(false);
-        handleNextTable();
-      }, 3000);
-      
-      return () => clearTimeout(notificationTimer);
-    }
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [timeLeft, isTableComplete]);
-
-  const add30Seconds = () => {
-    setTimeLeft(prev => prev + 30);
-  };
-
   const handleNextTable = () => {
     if (currentTable < 10) {
       // Add 30s bonus if table was completed
@@ -52,6 +26,30 @@ export default function MultiplicationTable() {
       setTimeLeft(newTime);
     }
   };
+  // Timer countdown
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    
+    if (isTableComplete && !completedTables.includes(currentTable)) {
+      setCompletedTables([...completedTables, currentTable]);
+      setShowCelebration(true);
+      
+      timer = setTimeout(() => {
+        setShowCelebration(false);
+        handleNextTable();
+      }, 3000);
+    }
+  
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [isTableComplete, currentTable, completedTables, handleNextTable]);
+
+  const add30Seconds = () => {
+    setTimeLeft(prev => prev + 30);
+  };
+
+
 
   const toggleMultiplierCheck = (multiplier: number) => {
     if (checkedMultipliers.includes(multiplier)) {
