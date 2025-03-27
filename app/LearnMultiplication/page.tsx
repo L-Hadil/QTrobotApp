@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
@@ -10,11 +10,36 @@ export default function MultiplicationTable() {
   const [completedTables, setCompletedTables] = useState<number[]>([]);
   const [checkedMultipliers, setCheckedMultipliers] = useState<number[]>([]);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<number>(30); // 30 seconds per table
+  const [isPaused, setIsPaused] = useState<boolean>(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Check if current table is completed
   const isTableComplete = checkedMultipliers.length === 10;
 
-  // Handle checking multipliers
+  // Timer countdown
+  useEffect(() => {
+    if (!isPaused && timeLeft > 0 && !isTableComplete) {
+      timerRef.current = setInterval(() => {
+        setTimeLeft(prev => prev - 1);
+      }, 1000);
+    } else if (timeLeft === 0 && !isTableComplete) {
+      // Time's up - auto advance to next table
+      handleNextTable();
+    }
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [timeLeft, isPaused, isTableComplete]);
+
+  const handleNextTable = () => {
+    if (currentTable < 10) {
+      setCurrentTable(currentTable + 1);
+      setCheckedMultipliers([]);
+      setTimeLeft(30); // Reset timer for next table
+    }
+  };
+
   const toggleMultiplierCheck = (multiplier: number) => {
     if (checkedMultipliers.includes(multiplier)) {
       setCheckedMultipliers(checkedMultipliers.filter(m => m !== multiplier));
@@ -23,30 +48,31 @@ export default function MultiplicationTable() {
     }
   };
 
-  // Progress to next table when current is completed
   useEffect(() => {
     if (isTableComplete && !completedTables.includes(currentTable)) {
       setCompletedTables([...completedTables, currentTable]);
       setShowCelebration(true);
       
-      // Auto-advance to next table after celebration
       const timer = setTimeout(() => {
         setShowCelebration(false);
-        if (currentTable < 10) {
-          setCurrentTable(currentTable + 1);
-          setCheckedMultipliers([]);
-        }
+        handleNextTable();
       }, 3000);
 
       return () => clearTimeout(timer);
     }
   }, [isTableComplete, currentTable, completedTables]);
 
-  // Determine robot expression
   const getRobotExpression = () => {
     if (showCelebration) return "happy";
+    if (timeLeft < 10) return "confused"; // Show concern when time is running low
     if (checkedMultipliers.length > 0) return "neutral";
     return "neutral";
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
   return (
@@ -104,8 +130,48 @@ export default function MultiplicationTable() {
         <div style={{ flex: 1 }}>
           <QTRobot expression={getRobotExpression()} />
           
+          {/* Timer Display */}
+          <div style={{
+            margin: "1rem 0",
+            fontSize: "1.5rem",
+            fontWeight: "bold",
+            color: timeLeft < 10 ? "#ef4444" : "#3b82f6"
+          }}>
+            Temps restant: {formatTime(timeLeft)}
+          </div>
+
+          {/* Timer Controls */}
+          <div style={{ margin: "1rem 0", display: "flex", gap: "10px", justifyContent: "center" }}>
+            <button
+              onClick={() => setIsPaused(!isPaused)}
+              style={{
+                padding: "0.5rem 1rem",
+                backgroundColor: isPaused ? "#10b981" : "#ef4444",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              {isPaused ? "Reprendre" : "Pause"}
+            </button>
+            <button
+              onClick={handleNextTable}
+              style={{
+                padding: "0.5rem 1rem",
+                backgroundColor: "#3b82f6",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Table Suivante
+            </button>
+          </div>
+
           {/* Progress Tracker */}
-          <div style={{ marginTop: "2rem" }}>
+          <div style={{ marginTop: "1rem" }}>
             <h3 style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>Progrès</h3>
             <div style={{
               display: "flex",
@@ -138,6 +204,8 @@ export default function MultiplicationTable() {
                     if (!completedTables.includes(num)) {
                       setCurrentTable(num);
                       setCheckedMultipliers([]);
+                      setTimeLeft(30);
+                      setIsPaused(false);
                     }
                   }}
                 >
