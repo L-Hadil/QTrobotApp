@@ -11,31 +11,6 @@ const QTRobot = dynamic(() => import("@/app/components/QTRobot"), { ssr: false }
 export default function Home() {
   const [currentExpression, setCurrentExpression] = useState("neutral");
 
-  // Example exercise topics
-  const exercises = [
-    {
-      id: 1,
-      title: "Addition",
-      link: "/addition",
-      icon: <FaPlus />,
-      image: "/images/addition.jpg", // Chemin de l'image
-    },
-    {
-      id: 2,
-      title: "Multiplication",
-      link: "/multiplication",
-      icon: <FaTimes />,
-      image: "/images/multiplication.jpg", // Chemin de l'image
-    },
-    {
-      id: 3,
-      title: "Division",
-      link: "/division",
-      icon: <FaDivide />,
-      image: "/images/division.jpg", // Chemin de l'image
-    },
-  ];
-
   return (
     <div style={{
       display: "flex",
@@ -46,30 +21,13 @@ export default function Home() {
       textAlign: "center",
       padding: "20px",
     }}>
-      {/* Conteneur pour le robot */}
-      <div style={{ marginBottom: "2rem" }}>
+      <div style={{ marginBottom: "2rem", flexDirection: "row" }}>
         <QTRobot expression={currentExpression} />
       </div>
 
-      {/* Contenu sous le robot */}
-      <div>
-        <h2>Math Topics</h2>
-        <div style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "center",
-          gap: "20px",
-          flexWrap: "wrap",
-        }}>
-          {exercises.map((exercise) => (
-            <Link key={exercise.id} href={exercise.link} className="button">
-              <img src={exercise.image} alt={exercise.title} style={{ width: "50px", marginBottom: "10px" }} />
-              <span style={{ marginLeft: "10px" }}>{exercise.title}</span>
-            </Link>
-          ))}
-        </div>
-        <Link href="/about" className="button" style={{ marginTop: "20px", display: "block" }}>About</Link>
-      </div>
+      <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>Bienvenue sur QT Robot Math Tutor</h1>
+      <Link href="/selection-niveau" className="button" style={{ padding: "10px 20px", backgroundColor: "#4CAF50", color: "white", borderRadius: "5px" }}>Commencer</Link>
+      <Link href="/about" className="button" style={{ padding: "10px 20px", backgroundColor: "#4CAF50", color: "white", borderRadius: "5px" }}>About</Link>
     </div>
   );
 }
