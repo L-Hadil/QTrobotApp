@@ -35,7 +35,7 @@ export default function Home() {
       image: "/images/division.jpg", // Chemin de l'image
     },
     {
-      id: 3,
+      id: 4,
       title: "Learn Multiplication",
       link: "/LearnMultiplication",
       icon: <FaDivide />,
