@@ -37,7 +37,7 @@ export default function MultiplicationTable() {
       timer = setTimeout(() => {
         setShowCelebration(false);
         handleNextTable();
-      }, 3000);
+      }, 3);
     }
   
     return () => {
