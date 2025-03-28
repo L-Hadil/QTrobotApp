@@ -9,6 +9,7 @@ interface ChildData {
   name: string;
   age: number;
   totalTime: number;
+  tableTimes: Record<number, number>;
   completionDate: string;
 }
 
@@ -45,32 +46,25 @@ export default function MultiplicationTable() {
   }, [timeLeft, isPaused, isTableComplete]);
 
   const handleNextTable = () => {
+    // Calculer le temps pris pour cette table
+    const endTime = Date.now();
+    const timeTaken = Math.round((endTime - startTimeRef.current) / 1000); // en secondes
+    
+    // Mettre à jour les temps
+    setTableTimes(prev => ({
+      ...prev,
+      [currentTable]: timeTaken
+    }));
+    
+    setTotalTime(prev => prev + timeTaken);
+    
     if (currentTable < 10) {
-      // Calculer le temps pris pour cette table
-      const endTime = Date.now();
-      const timeTaken = Math.round((endTime - startTimeRef.current) / 1000); // en secondes
-      
-      setTableTimes(prev => ({
-        ...prev,
-        [currentTable]: timeTaken
-      }));
-      setTotalTime(prev => prev + timeTaken);
-      
       setCurrentTable(currentTable + 1);
       setCheckedMultipliers([]);
       setTimeLeft(30);
       startTimeRef.current = Date.now(); // Réinitialiser le chrono
     } else {
       // Dernière table terminée
-      const endTime = Date.now();
-      const timeTaken = Math.round((endTime - startTimeRef.current) / 1000);
-      
-      setTableTimes(prev => ({
-        ...prev,
-        [currentTable]: timeTaken
-      }));
-      setTotalTime(prev => prev + timeTaken);
-      
       setShowCompletionForm(true);
     }
   };
@@ -84,7 +78,7 @@ export default function MultiplicationTable() {
   };
 
   useEffect(() => {
-    startTimeRef.current = Date.now(); // Initialiser le chrono au démarrage
+    startTimeRef.current = Date.now(); // Initialiser le chrono
     
     if (isTableComplete && !completedTables.includes(currentTable)) {
       setCompletedTables([...completedTables, currentTable]);
@@ -106,10 +100,11 @@ export default function MultiplicationTable() {
       name: childData.name,
       age: parseInt(childData.age),
       totalTime: totalTime,
+      tableTimes: tableTimes,
       completionDate: new Date().toISOString()
     };
 
-    // Enregistrement dans localStorage (vous pouvez adapter pour un backend)
+    // Enregistrement dans localStorage
     const existingData = JSON.parse(localStorage.getItem("mathProgress") || "[]");
     localStorage.setItem("mathProgress", JSON.stringify([...existingData, data]));
     
@@ -120,7 +115,7 @@ export default function MultiplicationTable() {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}m ${secs}s`;
+    return `${mins}m ${secs < 10 ? '0' : ''}${secs}s`;
   };
 
   const getRobotExpression = () => {
@@ -168,7 +163,8 @@ export default function MultiplicationTable() {
           }}>
             <h2 style={{ fontSize: "2rem", color: "#10b981" }}>Félicitations! 🎉</h2>
             <p style={{ fontSize: "1.2rem" }}>Vous avez maîtrisé la table de {currentTable}!</p>
-            <p>Temps pris: {formatTime(tableTimes[currentTable] || 0)}</p>
+            <p>Temps pour cette table: {formatTime(tableTimes[currentTable] || 0)}</p>
+            <p>Temps total accumulé: {formatTime(totalTime)}</p>
             <button
               onClick={() => {
                 setShowCelebration(false);
@@ -212,8 +208,33 @@ export default function MultiplicationTable() {
             maxWidth: "500px",
             textAlign: "center",
           }}>
-            <h2 style={{ fontSize: "2rem", color: "#10b981" }}>Bravo! 👏</h2>
-            <p style={{ fontSize: "1.2rem" }}>Temps total: {formatTime(totalTime)}</p>
+            <h2 style={{ fontSize: "2rem", color: "#10b981" }}>Résultats Finaux</h2>
+            
+            {/* Détail par table */}
+            <div style={{ 
+              maxHeight: "200px", 
+              overflowY: "auto",
+              margin: "1rem 0",
+              padding: "1rem",
+              border: "1px solid #e5e7eb",
+              borderRadius: "8px",
+              textAlign: "left"
+            }}>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                <p key={num}>
+                  Table {num}: {formatTime(tableTimes[num] || 0)}
+                  {completedTables.includes(num) && " ✓"}
+                </p>
+              ))}
+            </div>
+            
+            <p style={{ 
+              fontSize: "1.2rem",
+              fontWeight: "bold",
+              margin: "1rem 0"
+            }}>
+              Temps total: {formatTime(totalTime)}
+            </p>
             
             <form onSubmit={handleSubmit} style={{ marginTop: "1.5rem" }}>
               <div style={{ marginBottom: "1rem" }}>
