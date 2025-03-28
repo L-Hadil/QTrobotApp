@@ -19,31 +19,13 @@ export default function MultiplicationTable() {
   const [checkedMultipliers, setCheckedMultipliers] = useState<number[]>([]);
   const [showCelebration, setShowCelebration] = useState(false);
   const [showCompletionForm, setShowCompletionForm] = useState(false);
-  const [timeLeft, setTimeLeft] = useState<number>(30);
-  const [isPaused, setIsPaused] = useState<boolean>(false);
   const [childData, setChildData] = useState({ name: "", age: "" });
   const [totalTime, setTotalTime] = useState<number>(0);
   const [tableTimes, setTableTimes] = useState<Record<number, number>>({});
   const [showFinalMessage, setShowFinalMessage] = useState(false);
   
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(Date.now());
   const isTableComplete = checkedMultipliers.length === 10;
-
-  // Timer countdown
-  useEffect(() => {
-    if (!isPaused && timeLeft > 0 && !isTableComplete) {
-      timerRef.current = setInterval(() => {
-        setTimeLeft(prev => prev - 1);
-      }, 1000);
-    } else if (timeLeft === 0 && !isTableComplete) {
-      handleNextTable();
-    }
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [timeLeft, isPaused, isTableComplete]);
 
   const handleNextTable = () => {
     // Calculer le temps pris pour cette table
@@ -61,7 +43,6 @@ export default function MultiplicationTable() {
     if (currentTable < 10) {
       setCurrentTable(currentTable + 1);
       setCheckedMultipliers([]);
-      setTimeLeft(30);
       startTimeRef.current = Date.now(); // Réinitialiser le chrono
     } else {
       // Dernière table terminée
@@ -120,7 +101,6 @@ export default function MultiplicationTable() {
 
   const getRobotExpression = () => {
     if (showCelebration) return "happy";
-    if (timeLeft < 10) return "confused";
     if (checkedMultipliers.length > 0) return "neutral";
     return "neutral";
   };
@@ -351,19 +331,6 @@ export default function MultiplicationTable() {
           <div style={{ flex: 1 }}>
             <QTRobot expression={getRobotExpression()} />
             
-            {/* Timer Display */}
-            <div style={{
-              margin: "1rem 0",
-              fontSize: "1.5rem",
-              fontWeight: "bold",
-              color: timeLeft < 10 ? "#ef4444" : "#3b82f6",
-              backgroundColor: "rgba(255,255,255,0.7)",
-              padding: "0.5rem",
-              borderRadius: "8px",
-            }}>
-              Temps restant: {formatTime(timeLeft)}
-            </div>
-
             {/* Progress Tracker */}
             <div style={{ 
               marginTop: "1rem",
@@ -403,8 +370,6 @@ export default function MultiplicationTable() {
                       if (!completedTables.includes(num)) {
                         setCurrentTable(num);
                         setCheckedMultipliers([]);
-                        setTimeLeft(30);
-                        setIsPaused(false);
                         startTimeRef.current = Date.now();
                       }
                     }}
