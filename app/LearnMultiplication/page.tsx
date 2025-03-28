@@ -56,7 +56,7 @@ export default function MultiplicationTable() {
       const timer = setTimeout(() => {
         setShowCelebration(false);
         handleNextTable();
-      }, 3);
+      }, 3000);
 
       return () => clearTimeout(timer);
     }
@@ -87,36 +87,54 @@ export default function MultiplicationTable() {
       color: "black",
       background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
     }}>
-      {/* Celebration Message */}
       {showCelebration && (
-        <div style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: "rgba(0,0,0,0.7)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 100,
-        }}>
-          <div style={{
-            backgroundColor: "white",
-            padding: "2rem",
-            borderRadius: "12px",
-            maxWidth: "500px",
-          }}>
-            <h2 style={{ fontSize: "2rem", color: "#10b981" }}>Félicitations! 🎉</h2>
-            <p style={{ fontSize: "1.2rem" }}>Vous avez maîtrisé la table de {currentTable}!</p>
-            {currentTable < 10 ? (
-              <p style={{ fontSize: "1rem" }}>Passons à la table de {currentTable + 1}...</p>
-            ) : (
-              <p style={{ fontSize: "1rem" }}>Vous avez terminé toutes les tables! 👏</p>
-            )}
-          </div>
-        </div>
+  <div style={{
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 100,
+  }}>
+    <div style={{
+      backgroundColor: "white",
+      padding: "2rem",
+      borderRadius: "12px",
+      maxWidth: "500px",
+      textAlign: "center",
+    }}>
+      <h2 style={{ fontSize: "2rem", color: "#10b981" }}>Félicitations! 🎉</h2>
+      <p style={{ fontSize: "1.2rem" }}>Vous avez maîtrisé la table de {currentTable}!</p>
+      {currentTable < 10 ? (
+        <p style={{ fontSize: "1rem" }}>Passons à la table de {currentTable + 1}...</p>
+      ) : (
+        <p style={{ fontSize: "1rem" }}>Vous avez terminé toutes les tables! 👏</p>
       )}
+      <button
+        onClick={() => {
+          setShowCelebration(false);
+          handleNextTable();
+        }}
+        style={{
+          marginTop: "1.5rem",
+          padding: "0.5rem 1.5rem",
+          backgroundColor: "#10b981",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+          fontSize: "1rem",
+        }}
+      >
+        OK
+      </button>
+    </div>
+  </div>
+)}
 
       <div style={{
         display: "flex",
