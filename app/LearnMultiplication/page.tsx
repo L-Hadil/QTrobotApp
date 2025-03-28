@@ -5,15 +5,28 @@ import Link from "next/link";
 
 const QTRobot = dynamic(() => import("@/app/components/QTRobot"), { ssr: false });
 
+interface ChildData {
+  name: string;
+  age: number;
+  totalTime: number;
+  completionDate: string;
+}
+
 export default function MultiplicationTable() {
   const [currentTable, setCurrentTable] = useState<number>(1);
   const [completedTables, setCompletedTables] = useState<number[]>([]);
   const [checkedMultipliers, setCheckedMultipliers] = useState<number[]>([]);
   const [showCelebration, setShowCelebration] = useState(false);
-  const [timeLeft, setTimeLeft] = useState<number>(30); // 30 seconds per table
+  const [showCompletionForm, setShowCompletionForm] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<number>(30);
   const [isPaused, setIsPaused] = useState<boolean>(false);
+  const [childData, setChildData] = useState({ name: "", age: "" });
+  const [totalTime, setTotalTime] = useState<number>(0);
+  const [tableTimes, setTableTimes] = useState<Record<number, number>>({});
+  const [showFinalMessage, setShowFinalMessage] = useState(false);
+  
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-
+  const startTimeRef = useRef<number>(Date.now());
   const isTableComplete = checkedMultipliers.length === 10;
 
   // Timer countdown
@@ -23,7 +36,6 @@ export default function MultiplicationTable() {
         setTimeLeft(prev => prev - 1);
       }, 1000);
     } else if (timeLeft === 0 && !isTableComplete) {
-      // Time's up - auto advance to next table
       handleNextTable();
     }
 
@@ -34,9 +46,32 @@ export default function MultiplicationTable() {
 
   const handleNextTable = () => {
     if (currentTable < 10) {
+      // Calculer le temps pris pour cette table
+      const endTime = Date.now();
+      const timeTaken = Math.round((endTime - startTimeRef.current) / 1000); // en secondes
+      
+      setTableTimes(prev => ({
+        ...prev,
+        [currentTable]: timeTaken
+      }));
+      setTotalTime(prev => prev + timeTaken);
+      
       setCurrentTable(currentTable + 1);
       setCheckedMultipliers([]);
-      setTimeLeft(30); // Reset timer for next table
+      setTimeLeft(30);
+      startTimeRef.current = Date.now(); // Réinitialiser le chrono
+    } else {
+      // Dernière table terminée
+      const endTime = Date.now();
+      const timeTaken = Math.round((endTime - startTimeRef.current) / 1000);
+      
+      setTableTimes(prev => ({
+        ...prev,
+        [currentTable]: timeTaken
+      }));
+      setTotalTime(prev => prev + timeTaken);
+      
+      setShowCompletionForm(true);
     }
   };
 
@@ -49,6 +84,8 @@ export default function MultiplicationTable() {
   };
 
   useEffect(() => {
+    startTimeRef.current = Date.now(); // Initialiser le chrono au démarrage
+    
     if (isTableComplete && !completedTables.includes(currentTable)) {
       setCompletedTables([...completedTables, currentTable]);
       setShowCelebration(true);
@@ -62,17 +99,35 @@ export default function MultiplicationTable() {
     }
   }, [isTableComplete, currentTable, completedTables]);
 
-  const getRobotExpression = () => {
-    if (showCelebration) return "happy";
-    if (timeLeft < 10) return "confused"; // Show concern when time is running low
-    if (checkedMultipliers.length > 0) return "neutral";
-    return "neutral";
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const data: ChildData = {
+      name: childData.name,
+      age: parseInt(childData.age),
+      totalTime: totalTime,
+      completionDate: new Date().toISOString()
+    };
+
+    // Enregistrement dans localStorage (vous pouvez adapter pour un backend)
+    const existingData = JSON.parse(localStorage.getItem("mathProgress") || "[]");
+    localStorage.setItem("mathProgress", JSON.stringify([...existingData, data]));
+    
+    setShowFinalMessage(true);
+    setShowCompletionForm(false);
   };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    return `${mins}m ${secs}s`;
+  };
+
+  const getRobotExpression = () => {
+    if (showCelebration) return "happy";
+    if (timeLeft < 10) return "confused";
+    if (checkedMultipliers.length > 0) return "neutral";
+    return "neutral";
   };
 
   return (
@@ -90,238 +145,344 @@ export default function MultiplicationTable() {
       backgroundPosition: "center",
       backgroundAttachment: "fixed",
     }}>
+      {/* Celebration Message */}
       {showCelebration && (
-  <div style={{
-    position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.7)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 100,
-  }}>
-    <div style={{
-      backgroundColor: "white",
-      padding: "2rem",
-      borderRadius: "12px",
-      maxWidth: "500px",
-      textAlign: "center",
-    }}>
-      <h2 style={{ fontSize: "2rem", color: "#10b981" }}>Félicitations! 🎉</h2>
-      <p style={{ fontSize: "1.2rem" }}>Vous avez maîtrisé la table de {currentTable}!</p>
-      {currentTable < 10 ? (
-        <p style={{ fontSize: "1rem" }}>Passons à la table de {currentTable + 1}...</p>
-      ) : (
-        <p style={{ fontSize: "1rem" }}>Vous avez terminé toutes les tables! 👏</p>
-      )}
-      <button
-        onClick={() => {
-          setShowCelebration(false);
-          handleNextTable();
-        }}
-        style={{
-          marginTop: "1.5rem",
-          padding: "0.5rem 1.5rem",
-          backgroundColor: "#10b981",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-          fontSize: "1rem",
-        }}
-      >
-        OK
-      </button>
-    </div>
-  </div>
-)}
-
-      <div style={{
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "flex-start",
-        gap: "40px",
-        maxWidth: "900px",
-        margin: "0 auto",
-      }}>
-        {/* QT Robot Section */}
-        <div style={{ flex: 1 }}>
-          <QTRobot expression={getRobotExpression()} />
-          
-          {/* Timer Display */}
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.7)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 100,
+        }}>
           <div style={{
-            margin: "1rem 0",
-            fontSize: "1.5rem",
-            fontWeight: "bold",
-            color: timeLeft < 10 ? "#ef4444" : "#3b82f6"
+            backgroundColor: "white",
+            padding: "2rem",
+            borderRadius: "12px",
+            maxWidth: "500px",
+            textAlign: "center",
           }}>
-            Temps restant: {formatTime(timeLeft)}
-          </div>
-
-          {/* Timer Controls */}
-          <div style={{ margin: "1rem 0", display: "flex", gap: "10px", justifyContent: "center" }}>
+            <h2 style={{ fontSize: "2rem", color: "#10b981" }}>Félicitations! 🎉</h2>
+            <p style={{ fontSize: "1.2rem" }}>Vous avez maîtrisé la table de {currentTable}!</p>
+            <p>Temps pris: {formatTime(tableTimes[currentTable] || 0)}</p>
             <button
-              onClick={() => setIsPaused(!isPaused)}
+              onClick={() => {
+                setShowCelebration(false);
+                handleNextTable();
+              }}
               style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: isPaused ? "#10b981" : "#ef4444",
+                marginTop: "1.5rem",
+                padding: "0.5rem 1.5rem",
+                backgroundColor: "#10b981",
                 color: "white",
                 border: "none",
                 borderRadius: "4px",
                 cursor: "pointer",
+                fontSize: "1rem",
               }}
             >
-              {isPaused ? "Reprendre" : "Pause"}
-            </button>
-            <button
-              onClick={handleNextTable}
-              style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: "#3b82f6",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              Table Suivante
+              OK
             </button>
           </div>
+        </div>
+      )}
 
-          {/* Progress Tracker */}
-          <div style={{ marginTop: "1rem" }}>
-            <h3 style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>Progrès</h3>
-            <div style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "8px",
-              justifyContent: "center"
-            }}>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
-                <div
-                  key={num}
+      {/* Completion Form */}
+      {showCompletionForm && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.7)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 100,
+        }}>
+          <div style={{
+            backgroundColor: "white",
+            padding: "2rem",
+            borderRadius: "12px",
+            maxWidth: "500px",
+            textAlign: "center",
+          }}>
+            <h2 style={{ fontSize: "2rem", color: "#10b981" }}>Bravo! 👏</h2>
+            <p style={{ fontSize: "1.2rem" }}>Temps total: {formatTime(totalTime)}</p>
+            
+            <form onSubmit={handleSubmit} style={{ marginTop: "1.5rem" }}>
+              <div style={{ marginBottom: "1rem" }}>
+                <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                  Nom de l'enfant:
+                </label>
+                <input
+                  type="text"
+                  value={childData.name}
+                  onChange={(e) => setChildData({...childData, name: e.target.value})}
+                  required
                   style={{
-                    width: "30px",
-                    height: "30px",
-                    borderRadius: "50%",
-                    backgroundColor: completedTables.includes(num) 
-                      ? "#10b981" 
-                      : num === currentTable 
-                        ? "#3b82f6" 
-                        : "#e5e7eb",
-                    color: completedTables.includes(num) || num === currentTable 
-                      ? "white" 
-                      : "black",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontWeight: "bold",
-                    cursor: "pointer",
+                    padding: "0.5rem",
+                    width: "100%",
+                    border: "1px solid #d1d5db",
+                    borderRadius: "4px",
                   }}
-                  onClick={() => {
-                    if (!completedTables.includes(num)) {
-                      setCurrentTable(num);
-                      setCheckedMultipliers([]);
-                      setTimeLeft(30);
-                      setIsPaused(false);
-                    }
+                />
+              </div>
+              
+              <div style={{ marginBottom: "1.5rem" }}>
+                <label style={{ display: "block", marginBottom: "0.5rem" }}>
+                  Âge de l'enfant:
+                </label>
+                <input
+                  type="number"
+                  value={childData.age}
+                  onChange={(e) => setChildData({...childData, age: e.target.value})}
+                  required
+                  min="4"
+                  max="12"
+                  style={{
+                    padding: "0.5rem",
+                    width: "100%",
+                    border: "1px solid #d1d5db",
+                    borderRadius: "4px",
                   }}
-                >
-                  {num}
-                </div>
-              ))}
+                />
+              </div>
+              
+              <button
+                type="submit"
+                style={{
+                  padding: "0.5rem 1.5rem",
+                  backgroundColor: "#3b82f6",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  fontSize: "1rem",
+                }}
+              >
+                Enregistrer
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Final Message */}
+      {showFinalMessage && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.7)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 100,
+        }}>
+          <div style={{
+            backgroundColor: "white",
+            padding: "2rem",
+            borderRadius: "12px",
+            maxWidth: "500px",
+            textAlign: "center",
+          }}>
+            <h2 style={{ fontSize: "2rem", color: "#10b981" }}>Résultats enregistrés!</h2>
+            <p style={{ fontSize: "1.2rem" }}>Merci {childData.name}!</p>
+            <p>Temps total: {formatTime(totalTime)}</p>
+            
+            <Link href="/" style={{
+              display: "inline-block",
+              marginTop: "1.5rem",
+              padding: "0.5rem 1.5rem",
+              backgroundColor: "#10b981",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "1rem",
+              textDecoration: "none",
+            }}>
+              Retour à l'accueil
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content */}
+      {!showCompletionForm && !showFinalMessage && (
+        <div style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "flex-start",
+          gap: "40px",
+          maxWidth: "900px",
+          margin: "0 auto",
+        }}>
+          {/* QT Robot Section */}
+          <div style={{ flex: 1 }}>
+            <QTRobot expression={getRobotExpression()} />
+            
+            {/* Timer Display */}
+            <div style={{
+              margin: "1rem 0",
+              fontSize: "1.5rem",
+              fontWeight: "bold",
+              color: timeLeft < 10 ? "#ef4444" : "#3b82f6",
+              backgroundColor: "rgba(255,255,255,0.7)",
+              padding: "0.5rem",
+              borderRadius: "8px",
+            }}>
+              Temps restant: {formatTime(timeLeft)}
+            </div>
+
+            {/* Progress Tracker */}
+            <div style={{ 
+              marginTop: "1rem",
+              backgroundColor: "rgba(255,255,255,0.7)",
+              padding: "1rem",
+              borderRadius: "12px",
+            }}>
+              <h3 style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>Progrès</h3>
+              <div style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "8px",
+                justifyContent: "center"
+              }}>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                  <div
+                    key={num}
+                    style={{
+                      width: "30px",
+                      height: "30px",
+                      borderRadius: "50%",
+                      backgroundColor: completedTables.includes(num) 
+                        ? "#10b981" 
+                        : num === currentTable 
+                          ? "#3b82f6" 
+                          : "#e5e7eb",
+                      color: completedTables.includes(num) || num === currentTable 
+                        ? "white" 
+                        : "black",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      if (!completedTables.includes(num)) {
+                        setCurrentTable(num);
+                        setCheckedMultipliers([]);
+                        setTimeLeft(30);
+                        setIsPaused(false);
+                        startTimeRef.current = Date.now();
+                      }
+                    }}
+                  >
+                    {num}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Multiplication Table Section */}
-        <div style={{
-          flex: 1,
-          backgroundColor: "white",
-          padding: "2rem",
-          borderRadius: "12px",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-        }}>
-          <h1 style={{ 
-            fontSize: "2rem", 
-            fontWeight: "bold", 
-            marginBottom: "1.5rem",
-            color: completedTables.includes(currentTable) ? "#10b981" : "inherit"
+          {/* Multiplication Table Section */}
+          <div style={{
+            flex: 1,
+            backgroundColor: "rgba(255,255,255,0.9)",
+            padding: "2rem",
+            borderRadius: "12px",
+            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
           }}>
-            Table de {currentTable}
-            {completedTables.includes(currentTable) && " ✓"}
-          </h1>
-          
-          <table style={{ 
-            width: "100%", 
-            borderCollapse: "collapse",
-            opacity: completedTables.includes(currentTable) ? 0.7 : 1
-          }}>
-            <tbody>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(multiplier => (
-                <tr key={multiplier}>
-                  <td style={{ 
-                    padding: "0.5rem",
-                    textAlign: "right",
-                    borderBottom: "1px solid #e5e7eb",
-                    textDecoration: checkedMultipliers.includes(multiplier) ? "line-through" : "none"
-                  }}>
-                    {currentTable} × {multiplier} =
-                  </td>
-                  <td style={{ 
-                    padding: "0.5rem",
-                    textAlign: "left",
-                    borderBottom: "1px solid #e5e7eb",
-                    fontWeight: "bold"
-                  }}>
-                    {currentTable * multiplier}
-                  </td>
-                  <td style={{ padding: "0.5rem" }}>
-                    <input
-                      type="checkbox"
-                      checked={checkedMultipliers.includes(multiplier) || completedTables.includes(currentTable)}
-                      onChange={() => toggleMultiplierCheck(multiplier)}
-                      disabled={completedTables.includes(currentTable)}
-                      style={{
-                        width: "20px",
-                        height: "20px",
-                        cursor: "pointer",
-                        accentColor: "#10b981",
-                      }}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {isTableComplete && !completedTables.includes(currentTable) && (
-            <p style={{ 
-              marginTop: "1rem",
-              color: "#10b981",
-              fontWeight: "bold"
+            <h1 style={{ 
+              fontSize: "2rem", 
+              fontWeight: "bold", 
+              marginBottom: "1.5rem",
+              color: completedTables.includes(currentTable) ? "#10b981" : "inherit"
             }}>
-              Bravo! Vous avez complété cette table! ✔️
-            </p>
-          )}
-        </div>
-      </div>
+              Table de {currentTable}
+              {completedTables.includes(currentTable) && " ✓"}
+            </h1>
+            
+            <table style={{ 
+              width: "100%", 
+              borderCollapse: "collapse",
+              opacity: completedTables.includes(currentTable) ? 0.7 : 1
+            }}>
+              <tbody>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(multiplier => (
+                  <tr key={multiplier}>
+                    <td style={{ 
+                      padding: "0.5rem",
+                      textAlign: "right",
+                      borderBottom: "1px solid #e5e7eb",
+                      textDecoration: checkedMultipliers.includes(multiplier) ? "line-through" : "none"
+                    }}>
+                      {currentTable} × {multiplier} =
+                    </td>
+                    <td style={{ 
+                      padding: "0.5rem",
+                      textAlign: "left",
+                      borderBottom: "1px solid #e5e7eb",
+                      fontWeight: "bold"
+                    }}>
+                      {currentTable * multiplier}
+                    </td>
+                    <td style={{ padding: "0.5rem" }}>
+                      <input
+                        type="checkbox"
+                        checked={checkedMultipliers.includes(multiplier) || completedTables.includes(currentTable)}
+                        onChange={() => toggleMultiplierCheck(multiplier)}
+                        disabled={completedTables.includes(currentTable)}
+                        style={{
+                          width: "20px",
+                          height: "20px",
+                          cursor: "pointer",
+                          accentColor: "#10b981",
+                        }}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
 
-      <Link href="/" style={{
-        marginTop: "2rem",
-        backgroundColor: "#001500",
-        color: "white",
-        padding: "0.75rem 1.5rem",
-        borderRadius: "9999px",
-        textDecoration: "none",
-        fontSize: "1rem",
-        transition: "background-color 0.2s",
-      }}>
-        Retour à l'accueil
-      </Link>
+            {isTableComplete && !completedTables.includes(currentTable) && (
+              <p style={{ 
+                marginTop: "1rem",
+                color: "#10b981",
+                fontWeight: "bold"
+              }}>
+                Bravo! Vous avez complété cette table! ✔️
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {!showCompletionForm && !showFinalMessage && (
+        <Link href="/" style={{
+          marginTop: "2rem",
+          backgroundColor: "#001500",
+          color: "white",
+          padding: "0.75rem 1.5rem",
+          borderRadius: "9999px",
+          textDecoration: "none",
+          fontSize: "1rem",
+          transition: "background-color 0.2s",
+        }}>
+          Retour à l'accueil
+        </Link>
+      )}
     </div>
   );
 }
