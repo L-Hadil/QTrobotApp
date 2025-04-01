@@ -1,4 +1,3 @@
-// /app/cp/page.tsx
 "use client";
 
 import Link from "next/link";
@@ -11,7 +10,7 @@ export default function CPPage() {
   const exercises = [
     { id: 1, title: "Addition", link: "/cp/addition", image: "/images/addition.jpg" },
     { id: 2, title: "Soustraction", link: "/cp/soustraction", image: "/images/soustraction.jpg" },
-    { id: 3, title: "Mesures", link: "/cp/mesures", image: "/images/mesures.jpg" },
+    { id: 3, title: "Unités de Mesures", link: "/cp/mesures", image: "/images/mesures.jpg" },
     { id: 4, title: "Géométrie", link: "/cp/geometrie", image: "/images/geometrie.jpg" },
   ];
 

@@ -52,7 +52,6 @@ export default function AdditionMoyenPage() {
       minHeight: "100vh",
       textAlign: "center",
       padding: "20px",
-      backgroundColor: "#f0fdf4",
       fontFamily: "'Comic Sans MS', cursive, sans-serif"
     }}>
       <div style={{ marginBottom: "1rem" }}>

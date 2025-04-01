@@ -3,111 +3,75 @@
 import { useState } from "react";
 import QTRobot from "@/app/components/QTRobot";
 
-export default function MesuresMoyenCP() {
+export default function GeometrieMoyenCE1() {
   const [currentExpression, setCurrentExpression] = useState<"happy" | "confused" | "sad" | "neutral">("neutral");
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [currentQuestion, setCurrentQuestion] = useState(0);
 
   const questions = [
     {
-      question: "Combien de centimètres y a-t-il dans un mètre?",
-      answer: "100",
-      options: ["10", "50", "100"]
+      question: "Quel solide a une base carrée et 4 faces triangulaires?",
+      image: "/images/pyramide.png",
+      answer: "pyramide",
+      options: ["cube", "pyramide", "prisme"]
     },
     {
-      question: "Si tu mesures un crayon, quelle unité utilises-tu?",
-      answer: "centimètres",
-      options: ["mètres", "centimètres", "kilomètres"]
+      question: "Quel solide peut à la fois rouler et glisser?",
+      image: "/images/solides.png",
+      answer: "cylindre",
+      options: ["boule", "cylindre", "cône"]
     },
     {
-      question: "Quelle heure est-il quand la petite aiguille est entre le 3 et le 4 et la grande sur le 6?",
-      answer: "3h30",
-      options: ["3h00", "3h30", "4h30"]
+      question: "Combien de sommets a un cube?",
+      image: "/images/cube.png",
+      answer: "8",
+      options: ["4", "6", "8"]
     },
     {
-      question: "Combien de mois y a-t-il dans une année?",
-      answer: "12",
-      options: ["6", "12", "24"]
+      question: "Quelle figure est symétrique par rapport à cette droite?",
+      image: "/images/symetrie-moyen.png",
+      answer: "B",
+      options: ["A", "B", "C"]
     },
     {
-      question: "Quelle quantité est la plus grande? (25cl/50cl/75cl)",
-      answer: "75cl",
-      options: ["25cl", "50cl", "75cl"]
+        question: "Quelle figure est symétrique par rapport à cette droite?",
+        image: "/images/symetrie-moyen2.png",
+        answer: "F",
+        options: ["D", "E", "F"]
     },
     {
-      question: "Quelle quantité est la plus petite? (100g/500g/1kg)",
-      answer: "100g",
-      options: ["100g", "500g", "1kg"]
+      question: "Comment se déplacer de B2 à D3?",
+      image: "/images/grid.png",
+      answer: "2 cases à droite et 1 case vers le bas",
+      options: [
+        "1 case à droite et 1 case vers le bas",
+        "2 cases à droite et 1 case vers le bas",
+        "2 cases vers le bas"
+      ]
     },
     {
-      question: "Si un verre contient 20cl, combien en contiennent 3 verres?",
-      answer: "60cl",
-      options: ["20cl", "40cl", "60cl"]
+      question: "Quelle case est au nord-ouest de D3?",
+      image: "/images/grid.png",
+      answer: "C2",
+      options: ["C2", "C4", "E2"]
     },
     {
-      question: "Quelle température est normale pour le corps humain?",
-      answer: "37°C",
-      options: ["0°C", "37°C", "100°C"]
+      question: "Combien d'arêtes a une pyramide à base carrée?",
+      image: "/images/pyramide.png",
+      answer: "8",
+      options: ["5", "8", "12"]
     },
     {
-      question: "Combien de jours y a-t-il en avril?",
-      answer: "30",
-      options: ["28", "30", "31"]
+      question: "Quel solide n'a pas de face plane?",
+      image: "/images/solides.png",
+      answer: "boule",
+      options: ["cube", "boule", "pyramide"]
     },
     {
-      question: "Quelle somme fait 1€ + 50ct + 20ct?",
-      answer: "1€70",
-      options: ["1€50", "1€70", "2€"]
-    },
-    {
-      question: "Si un sac pèse 3kg et un autre 5kg, quel est le poids total?",
-      answer: "8kg",
-      options: ["2kg", "8kg", "15kg"]
-    },
-    {
-      question: "Quelle est la durée d'une récréation typique?",
-      answer: "15 minutes",
-      options: ["5 minutes", "15 minutes", "1 heure"]
-    },
-    {
-      question: "Si tu pars à 14h et reviens à 15h30, combien de temps es-tu parti?",
-      answer: "1h30",
-      options: ["30 minutes", "1h00", "1h30"]
-    },
-    {
-      question: "Quelle est la saison entre l'hiver et l'été?",
-      answer: "printemps",
-      options: ["automne", "printemps", "été"]
-    },
-    {
-      question: "Combien de semaines y a-t-il dans un mois?",
-      answer: "4",
-      options: ["2", "4", "6"]
-    },
-    {
-      question: "Quelle est la valeur de 2 billets de 5€ + 3 pièces de 2€?",
-      answer: "16€",
-      options: ["10€", "16€", "20€"]
-    },
-    {
-      question: "Si un litre de jus coûte 2€, combien coûtent 3 litres?",
-      answer: "6€",
-      options: ["2€", "5€", "6€"]
-    },
-    {
-      question: "Quelle est la température quand l'eau gèle?",
-      answer: "0°C",
-      options: ["0°C", "10°C", "100°C"]
-    },
-    {
-      question: "Combien de secondes y a-t-il dans une minute?",
-      answer: "60",
-      options: ["30", "60", "100"]
-    },
-    {
-      question: "Si un film dure 1h45, combien de minutes cela fait-il?",
-      answer: "105",
-      options: ["45", "100", "105"]
+      question: "Quelle est la position du cône par rapport à la sphère?",
+      image: "/images/solides.png",
+      answer: "en bas à droite",
+      options: ["en bas à droite", "en haut à droite", "au centre"]
     }
   ];
 
@@ -159,12 +123,24 @@ export default function MesuresMoyenCP() {
         maxWidth: "600px",
         width: "100%"
       }}>
-        <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem", color: "#ff9800" }}>Mesures - Niveau Moyen</h1>
-        <p style={{ fontSize: "1.2rem", marginBottom: "2rem", color: "#ff9800" }}>Question {currentQuestion + 1}/20</p>
+        <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem", color: "#ff9800" }}>Géométrie CE1 - Niveau Moyen</h1>
+        <p style={{ fontSize: "1.2rem", marginBottom: "2rem", color: "#ff9800" }}>Question {currentQuestion + 1}/10</p>
         
         <div style={{ marginBottom: "2rem" }}>
           <h2 style={{ fontSize: "1.3rem", marginBottom: "1.5rem", color: "#ff9800" }}>{questions[currentQuestion].question}</h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          {questions[currentQuestion].image && (
+            <img 
+              src={questions[currentQuestion].image} 
+              alt="Illustration" 
+              style={{ 
+                maxWidth: "300px", 
+                margin: "0 auto 1rem", 
+                border: "1px solid #ddd",
+                borderRadius: "8px"
+              }} 
+            />
+          )}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
             {questions[currentQuestion].options.map((option, index) => (
               <button
                 key={index}
@@ -187,7 +163,8 @@ export default function MesuresMoyenCP() {
                   border: "none",
                   borderRadius: "5px",
                   cursor: "pointer",
-                  transition: "all 0.3s"
+                  transition: "all 0.3s",
+                  fontSize: "1rem"
                 }}
               >
                 {option}

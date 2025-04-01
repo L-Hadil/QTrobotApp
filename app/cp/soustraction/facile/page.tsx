@@ -72,7 +72,6 @@ export default function SoustractionFacile() {
       minHeight: "100vh",
       textAlign: "center",
       padding: "20px",
-      backgroundColor: "#f0f8ff",
       fontFamily: "'Comic Sans MS', cursive, sans-serif"
     }}>
       <QTRobot expression={currentExpression} />

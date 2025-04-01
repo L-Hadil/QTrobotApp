@@ -71,7 +71,6 @@ export default function SoustractionMoyen() {
       minHeight: "100vh",
       textAlign: "center",
       padding: "20px",
-      backgroundColor: "#fff0f5",
       fontFamily: "'Comic Sans MS', cursive, sans-serif"
     }}>
       <QTRobot expression={currentExpression} />

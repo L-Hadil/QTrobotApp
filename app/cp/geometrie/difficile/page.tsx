@@ -187,7 +187,6 @@ export default function GeometrieDifficilePage() {
       minHeight: "100vh",
       textAlign: "center",
       padding: "20px",
-      backgroundColor: "white", // Fond blanc pur
       fontFamily: "'Comic Sans MS', cursive, sans-serif"
     }}>
       <div style={{ marginBottom: "2rem" }}>
