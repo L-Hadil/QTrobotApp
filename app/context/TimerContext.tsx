@@ -1,26 +1,38 @@
-// app/context/TimerContext.tsx
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
 
-const TimerContext = createContext<{
+type TimerContextType = {
   minutes: number;
   seconds: number;
   resetTimer: () => void;
-} | null>(null);
+  stopTimer: () => void;
+};
+
+const TimerContext = createContext<TimerContextType | null>(null);
 
 export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   const [secondsPassed, setSecondsPassed] = useState(0);
+  const [isRunning, setIsRunning] = useState(true);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setSecondsPassed((prev) => prev + 1);
+      if (isRunning) {
+        setSecondsPassed((prev) => prev + 1);
+      }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isRunning]);
 
-  const resetTimer = () => setSecondsPassed(0);
+  const resetTimer = () => {
+    setSecondsPassed(0);
+    setIsRunning(true);
+  };
+
+  const stopTimer = () => {
+    setIsRunning(false);
+  };
 
   return (
     <TimerContext.Provider
@@ -28,6 +40,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
         minutes: Math.floor(secondsPassed / 60),
         seconds: secondsPassed % 60,
         resetTimer,
+        stopTimer,
       }}
     >
       {children}
