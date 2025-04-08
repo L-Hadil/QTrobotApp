@@ -12,7 +12,7 @@ export default function AdditionDifficultySelection() {
 
   useEffect(() => {
     speak(
-      "Bienvenue à tous ! Choisis ton niveau pour commencer à t’amuser avec les mesures.",
+      "Choisis ton niveau pour commencer à t’amuser avec les mesures.",
       () => setCurrentExpression("talking"),
       () => setCurrentExpression("neutral")
     );

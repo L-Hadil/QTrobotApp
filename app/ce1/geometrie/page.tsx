@@ -12,7 +12,7 @@ export default function AdditionDifficultySelection() {
 
   useEffect(() => {
     speak(
-      "Bienvenue dans la géométrie du CE1 ! Choisis ton niveau pour commencer l’aventure des formes.",
+      "Choisis ton niveau pour commencer l’aventure des formes.",
       () => setCurrentExpression("talking"),
       () => setCurrentExpression("neutral")
     );

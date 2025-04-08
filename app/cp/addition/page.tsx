@@ -12,7 +12,7 @@ export default function AdditionDifficultySelection() {
 
   useEffect(() => {
     speak(
-      "Bienvenue les champions et les championnes ! Choisis ton niveau préféré pour t’amuser avec les additions !",
+      "Choisis ton niveau préféré pour t’amuser avec les additions !",
       () => setCurrentExpression("talking"),
       () => setCurrentExpression("neutral")
     );

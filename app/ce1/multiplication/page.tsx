@@ -12,7 +12,7 @@ export default function AdditionDifficultySelection() {
 
   useEffect(() => {
     speak(
-      "Bienvenue dans les multiplications pour le CE1 ! Choisis ton niveau et deviens le roi ou la reine des tables.",
+      "Choisis ton niveau et deviens le roi ou la reine des tables.",
       () => setCurrentExpression("talking"),
       () => setCurrentExpression("neutral")
     );

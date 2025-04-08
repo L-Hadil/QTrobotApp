@@ -12,13 +12,11 @@ export default function CPPage() {
   const [prenom, setPrenom] = useState("");
 
   useEffect(() => {
-    // Récupère le prénom depuis le localStorage
     const storedPrenom = localStorage.getItem("prenom") || "";
     setPrenom(storedPrenom);
 
-    // Utilise le prénom dans le texte
     speak(
-      `Bienvenue ${storedPrenom} dans les exercices de CP ! Choisis une activité pour t’amuser et apprendre.`,
+      `Bienvenue ${storedPrenom} dans les exercices de CP ! Aujourd'hui, tu vas apprendre en t'amusant avec les maths, alors choisis une activité et c’est parti !`,
       () => setCurrentExpression("talking"),
       () => setCurrentExpression("neutral")
     );
