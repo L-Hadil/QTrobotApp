@@ -12,7 +12,7 @@ export default function AdditionDifficultySelection() {
 
   useEffect(() => {
     speak(
-      "Bienvenue dans les soustractions pour le CE1 ! Choisis ton niveau pour t'entraîner en t'amusant.",
+      "Choisis ton niveau pour t'entraîner en t'amusant.",
       () => setCurrentExpression("talking"),
       () => setCurrentExpression("neutral")
     );
