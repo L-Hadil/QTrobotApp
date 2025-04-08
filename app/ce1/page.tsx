@@ -5,12 +5,13 @@ import { useState, useEffect } from "react";
 import QTRobot from "@/app/components/QTRobot";
 import type { QTRobotExpression } from "@/app/components/QTRobot";
 import { useSpeech } from "@/app/hooks/useSpeech";
+import { useGlobalTimer } from "@/app/context/TimerContext";
 
 export default function CE1Page() {
   const [currentExpression, setCurrentExpression] = useState<QTRobotExpression>("neutral");
   const { speak } = useSpeech();
   const [prenom, setPrenom] = useState("");
-
+  const { minutes, seconds } = useGlobalTimer();
   useEffect(() => {
     const storedPrenom = localStorage.getItem("prenom") || "";
     setPrenom(storedPrenom);
@@ -39,6 +40,20 @@ export default function CE1Page() {
       textAlign: "center",
       padding: "20px",
     }}>
+      {/* Timer visuel en haut à droite */}
+      <div style={{ 
+        position: "absolute", 
+        top: "10px", 
+        right: "20px", 
+        fontSize: "1rem", 
+        color: "#555", 
+        background: "rgba(255,255,255,0.8)", 
+        padding: "6px 12px", 
+        borderRadius: "8px" 
+      }}>
+        ⏱ Temps passé : {minutes} min {seconds < 10 ? `0${seconds}` : seconds}s
+      </div>
+
       <div style={{ marginBottom: "2rem" }}>
         <QTRobot expression={currentExpression} />
       </div>
