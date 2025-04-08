@@ -6,13 +6,17 @@ import QTRobot from "@/app/components/QTRobot";
 import type { QTRobotExpression } from "@/app/components/QTRobot";
 import { useSpeech } from "@/app/hooks/useSpeech";
 
-export default function CPPage() {
+export default function CE1Page() {
   const [currentExpression, setCurrentExpression] = useState<QTRobotExpression>("neutral");
   const { speak } = useSpeech();
+  const [prenom, setPrenom] = useState("");
 
   useEffect(() => {
+    const storedPrenom = localStorage.getItem("prenom") || "";
+    setPrenom(storedPrenom);
+
     speak(
-      "Bienvenue dans les exercices de CE1 ! Choisis une activité pour apprendre en t’amusant.",
+      `Bienvenue ${storedPrenom} dans les exercices de CE1 ! Choisis une activité pour apprendre en t’amusant.`,
       () => setCurrentExpression("talking"),
       () => setCurrentExpression("neutral")
     );
@@ -20,7 +24,7 @@ export default function CPPage() {
 
   const exercises = [
     { id: 1, title: "Multiplication", link: "/ce1/multiplication", image: "/images/multiplication.jpg" },
-    { id: 2, title: "Soustraction", link: "/ce1/soustraction", image: "/images/soustraction.jpg"},
+    { id: 2, title: "Soustraction", link: "/ce1/soustraction", image: "/images/soustraction.jpg" },
     { id: 3, title: "Unités de mesures", link: "/ce1/mesures", image: "/images/mesures.jpg" },
     { id: 4, title: "Géométrie", link: "/ce1/geometrie", image: "/images/geometrie.jpg" },
   ];
