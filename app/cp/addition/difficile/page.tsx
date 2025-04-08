@@ -1,9 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSpeech } from "@/app/hooks/useSpeech"; 
 import QTRobot from "@/app/components/QTRobot";
 
 export default function AdditionDifficilePage() {
-  const [currentExpression, setCurrentExpression] = useState<"happy" | "confused" | "sad" | "neutral">("neutral");
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [showResult, setShowResult] = useState(false);
@@ -46,7 +46,16 @@ export default function AdditionDifficilePage() {
       setShowResult(false);
     }
   };
-
+  const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "talking">("neutral");
+  const { speak } = useSpeech();
+  useEffect(() => {
+    speak(
+      exercise.question,
+      () => setCurrentExpression("talking"),
+      () => setCurrentExpression("neutral")
+    );
+  }, [exercise]);
+    
   return (
     <div style={{
       display: "flex",

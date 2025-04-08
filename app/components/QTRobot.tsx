@@ -1,52 +1,45 @@
 "use client";
+
 import { useEffect, useState } from "react";
 
+export type QTRobotExpression =
+  | "afraid"
+  | "angry"
+  | "confused"
+  | "cry"
+  | "disgusted"
+  | "happy"
+  | "kiss"
+  | "neutral"
+  | "sad"
+  | "scream"
+  | "talking"
+  | "yawn";
+
 interface QTRobotProps {
-  expression: "afraid" | "angry" | "confused" | "cry" | "disgusted" | "happy" | "kiss" | "neutral" | "sad" | "scream" | "talking" | "yawn";
+  expression: QTRobotExpression;
 }
 
 const QTRobot = ({ expression }: QTRobotProps) => {
   const [gifUrl, setGifUrl] = useState("/gifs/QT_QT_neutral.gif");
 
   useEffect(() => {
-    switch (expression) {
-      case "afraid":
-        setGifUrl("/gifs/QT_QT_afraid.gif");
-        break;
-      case "angry":
-        setGifUrl("/gifs/QT_QT_angry.gif");
-        break;
-      case "confused":
-        setGifUrl("/gifs/QT_QT_confused.gif");
-        break;
-      case "cry":
-        setGifUrl("/gifs/QT_QT_cry.gif");
-        break;
-      case "disgusted":
-        setGifUrl("/gifs/QT_QT_disgusted.gif");
-        break;
-      case "happy":
-        setGifUrl("/gifs/QT_QT_happy.gif");
-        break;
-      case "kiss":
-        setGifUrl("/gifs/QT_QT_kiss.gif");
-        break;
-      case "sad":
-        setGifUrl("/gifs/QT_QT_sad.gif");
-        break;
-      case "scream":
-        setGifUrl("/gifs/QT_QT_scream.gif");
-        break;
-      case "talking":
-        setGifUrl("/gifs/QT_QT_talking.gif");
-        break;
-      case "yawn":
-        setGifUrl("/gifs/QT_QT_yawn.gif");
-        break;
-      default:
-        setGifUrl("/gifs/QT_QT_neutral.gif");
-        break;
-    }
+    const expressionsMap: Record<QTRobotExpression, string> = {
+      afraid: "/gifs/QT_QT_afraid.gif",
+      angry: "/gifs/QT_QT_angry.gif",
+      confused: "/gifs/QT_QT_confused.gif",
+      cry: "/gifs/QT_QT_cry.gif",
+      disgusted: "/gifs/QT_QT_disgusted.gif",
+      happy: "/gifs/QT_QT_happy.gif",
+      kiss: "/gifs/QT_QT_kiss.gif",
+      neutral: "/gifs/QT_QT_neutral.gif",
+      sad: "/gifs/QT_QT_sad.gif",
+      scream: "/gifs/QT_QT_scream.gif",
+      talking: "/gifs/QT_QT_talking.gif",
+      yawn: "/gifs/QT_QT_yawn.gif",
+    };
+
+    setGifUrl(expressionsMap[expression]);
   }, [expression]);
 
   return (
@@ -56,11 +49,12 @@ const QTRobot = ({ expression }: QTRobotProps) => {
         alt="QTrobot Container"
         className="w-full h-auto"
       />
-      <img
+            <img
         src={gifUrl}
-        alt="QT Robot Expression"
-        className="absolute top-[81px] left-[43px] w-[210px] h-auto"
+        alt={`QT Robot Expression - ${expression}`}
+        className="absolute top-[81px] left-[43px] w-[210px] h-auto rounded-xl"
       />
+
     </div>
   );
 };

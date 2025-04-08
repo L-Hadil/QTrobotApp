@@ -1,16 +1,27 @@
 "use client";
+import { useSpeech } from "@/app/hooks/useSpeech";
+import { useEffect } from "react";
 
 import { useState } from "react";
 import QTRobot from "@/app/components/QTRobot";
 
 export default function GeometrieDifficilePage() {
-  const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "confused">("neutral");
+ 
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-
+  const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "talking">("neutral");
+  const { speak } = useSpeech();
+  useEffect(() => {
+    speak(
+      questions[currentQuestion].question,
+      () => setCurrentExpression("talking"),
+      () => setCurrentExpression("neutral")
+    );
+  }, [currentQuestion]);
+  
   const questions = [
     {
       question: "Quelle est la différence entre un carré et un rectangle ?",
@@ -153,7 +164,7 @@ export default function GeometrieDifficilePage() {
       image: "/images/pyramide-carree.png"
     }
   ];
-
+  
   const handleAnswer = (answer: string) => {
     setSelectedAnswer(answer);
     const correct = answer === questions[currentQuestion].answer;
@@ -200,7 +211,7 @@ export default function GeometrieDifficilePage() {
         boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
         maxWidth: "600px",
         width: "100%",
-        border: "2px solid #E0E0E0" // Bordure pour mieux délimiter
+        border: "2px solid #E0E0E0" 
       }}>
         {/* Titre avec couleur vive mais lisible */}
         <h1 style={{ 
@@ -305,9 +316,7 @@ export default function GeometrieDifficilePage() {
                   fontSize: "1.2rem",
                   fontWeight: "bold",
                   boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                  ":hover": {
-                    transform: !showResult ? "scale(1.02)" : "scale(1)"
-                  }
+                 
                 }}
               >
                 {option}
@@ -372,9 +381,7 @@ export default function GeometrieDifficilePage() {
                 fontWeight: "bold",
                 fontSize: "1.1rem",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                ":hover": {
-                  backgroundColor: "#0277BD"
-                }
+               
               }}
             >
               Recommencer

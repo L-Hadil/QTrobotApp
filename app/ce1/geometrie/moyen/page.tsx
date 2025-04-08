@@ -2,12 +2,23 @@
 
 import { useState } from "react";
 import QTRobot from "@/app/components/QTRobot";
+import { useEffect } from "react";
+import { useSpeech } from "@/app/hooks/useSpeech";
 
 export default function GeometrieMoyenCE1() {
-  const [currentExpression, setCurrentExpression] = useState<"happy" | "confused" | "sad" | "neutral">("neutral");
+  const [currentExpression, setCurrentExpression] = useState<"happy" |"talking" |"sad" | "neutral">("neutral");
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [currentQuestion, setCurrentQuestion] = useState(0);
+  const { speak } = useSpeech();
 
+  useEffect(() => {
+    speak(
+      questions[currentQuestion].question,
+      () => setCurrentExpression("talking"),
+      () => setCurrentExpression("neutral")
+    );
+  }, [currentQuestion]);
+  
   const questions = [
     {
       question: "Quel solide a une base carrée et 4 faces triangulaires?",

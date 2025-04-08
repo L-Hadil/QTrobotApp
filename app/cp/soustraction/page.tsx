@@ -1,11 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import QTRobot from "@/app/components/QTRobot";
+import type { QTRobotExpression } from "@/app/components/QTRobot";
+import { useSpeech } from "@/app/hooks/useSpeech";
 
 export default function AdditionDifficultySelection() {
-  const [currentExpression, setCurrentExpression] = useState("neutral");
+  const [currentExpression, setCurrentExpression] = useState<QTRobotExpression>("neutral");
+  const { speak } = useSpeech();
+
+  useEffect(() => {
+    speak(
+      "Bienvenue ! Choisis ton niveau pour devenir un pro de la soustraction !",
+      () => setCurrentExpression("talking"),
+      () => setCurrentExpression("neutral")
+    );
+  }, []);
 
   const difficulties = [
     { id: 1, title: "Facile", link: "/cp/soustraction/facile" },
@@ -27,7 +38,10 @@ export default function AdditionDifficultySelection() {
         <QTRobot expression={currentExpression} />
       </div>
 
-      <h1 style={{ fontSize: "2rem", marginBottom: "1rem", color: "#10b981" }}>Choisis la difficulté pour les soustractions</h1>
+      <h1 style={{ fontSize: "2rem", marginBottom: "1rem", color: "#10b981" }}>
+        Choisis la difficulté pour les soustractions
+      </h1>
+
       <div style={{
         display: "flex",
         flexDirection: "row",

@@ -1,11 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import QTRobot from "@/app/components/QTRobot";
+import type { QTRobotExpression } from "@/app/components/QTRobot";
+import { useSpeech } from "@/app/hooks/useSpeech";
 
 export default function CPPage() {
-  const [currentExpression, setCurrentExpression] = useState("neutral");
+  const [currentExpression, setCurrentExpression] = useState<QTRobotExpression>("neutral");
+  const { speak } = useSpeech();
+
+  useEffect(() => {
+    speak(
+      "Bienvenue dans les exercices de CE1 ! Choisis une activité pour apprendre en t’amusant.",
+      () => setCurrentExpression("talking"),
+      () => setCurrentExpression("neutral")
+    );
+  }, []);
 
   const exercises = [
     { id: 1, title: "Multiplication", link: "/ce1/multiplication", image: "/images/multiplication.jpg" },
@@ -28,7 +39,10 @@ export default function CPPage() {
         <QTRobot expression={currentExpression} />
       </div>
 
-      <h1 style={{ fontSize: "2rem", color: "#10b981", marginBottom: "1rem" }}>Exercices de CE1</h1>
+      <h1 style={{ fontSize: "2rem", color: "#10b981", marginBottom: "1rem" }}>
+        Exercices de CE1
+      </h1>
+
       <div style={{
         display: "flex",
         flexDirection: "row",
@@ -37,10 +51,10 @@ export default function CPPage() {
         flexWrap: "wrap",
       }}>
         {exercises.map((exercise) => (
-            <Link key={exercise.id} href={exercise.link} className="button">
-                <img src={exercise.image} alt={exercise.title} style={{ width: "50px", marginBottom: "10px" }} />
-                <span style={{ marginLeft: "10px" }}>{exercise.title}</span>
-            </Link>
+          <Link key={exercise.id} href={exercise.link} className="button">
+            <img src={exercise.image} alt={exercise.title} style={{ width: "50px", marginBottom: "10px" }} />
+            <span style={{ marginLeft: "10px" }}>{exercise.title}</span>
+          </Link>
         ))}
       </div>
     </div>

@@ -25,16 +25,26 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <header style={{
-          backgroundColor: "#f8f9f8",
-          padding: "3px",
-          textAlign: "center",
-          fontFamily: "'Comic Sans MS', cursive, sans-serif",
-          fontSize: "1.5rem",
-          color: "white",
-        }}>
-          <h1>QT Robot - Math Tutor</h1>
-        </header>
+        {<header style={{
+  backgroundColor: "transparent", // plus de bande blanche
+  padding: "10px",
+  textAlign: "center",
+}}>
+  <h1 style={{
+    display: "inline-block",
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    padding: "10px 20px",
+    borderRadius: "20px",
+    fontFamily: "Arial Rounded MT Bold, sans-serif",
+    fontSize: "2rem",
+    color: "#2b4a2e",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+    backdropFilter: "blur(5px)",
+  }}>
+    QT Robot - Math Tutor
+  </h1>
+</header>
+}
         {children}
       </body>
     </html>

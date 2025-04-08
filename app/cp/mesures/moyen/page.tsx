@@ -1,13 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSpeech } from "@/app/hooks/useSpeech";
 import QTRobot from "@/app/components/QTRobot";
 
 export default function MesuresMoyenCP() {
-  const [currentExpression, setCurrentExpression] = useState<"happy" | "confused" | "sad" | "neutral">("neutral");
+  
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [currentQuestion, setCurrentQuestion] = useState(0);
-
+  const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "talking">("neutral");
+  const { speak } = useSpeech();
+  useEffect(() => {
+    speak(
+      questions[currentQuestion].question,
+      () => setCurrentExpression("talking"),
+      () => setCurrentExpression("neutral")
+    );
+  }, [currentQuestion]);
   const questions = [
     {
       question: "Combien de centimètres y a-t-il dans un mètre?",

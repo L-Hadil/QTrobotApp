@@ -1,16 +1,27 @@
 "use client";
 
-import { useState } from "react";
+
 import QTRobot from "@/app/components/QTRobot";
+import { useEffect, useState } from "react";
+import { useSpeech } from "@/app/hooks/useSpeech";
+
 
 export default function MesuresFacileCP() {
-  const [currentExpression, setCurrentExpression] = useState<"happy" | "confused" | "sad" | "neutral">("neutral");
+  
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-
+  const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "talking">("neutral");
+  const { speak } = useSpeech();
+  useEffect(() => {
+    speak(
+      questions[currentQuestion].question,
+      () => setCurrentExpression("talking"),
+      () => setCurrentExpression("neutral")
+    );
+  }, [currentQuestion]);
   const questions = [
     {
       question: "Combien de côtés a un carré ?",
@@ -133,7 +144,7 @@ export default function MesuresFacileCP() {
       image: "/images/boite.png"
     }
   ];
-
+ 
   const handleAnswer = (answer: string) => {
     setSelectedAnswer(answer);
     const correct = answer === questions[currentQuestion].answer;
@@ -285,9 +296,7 @@ export default function MesuresFacileCP() {
                   fontSize: "1.2rem",
                   fontWeight: "bold",
                   boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                  ":hover": {
-                    transform: !showResult ? "scale(1.02)" : "scale(1)"
-                  }
+                  
                 }}
               >
                 {option}
@@ -352,9 +361,7 @@ export default function MesuresFacileCP() {
                 fontWeight: "bold",
                 fontSize: "1.1rem",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                ":hover": {
-                  backgroundColor: "#0277BD"
-                }
+               
               }}
             >
               Recommencer

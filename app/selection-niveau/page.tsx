@@ -1,11 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import QTRobot from "@/app/components/QTRobot";
+import { useSpeech } from "@/app/hooks/useSpeech";
 
 export default function LevelSelection() {
-  const [currentExpression, setCurrentExpression] = useState("neutral");
+  const [currentExpression, setCurrentExpression] = useState<
+    "afraid" | "angry" | "confused" | "cry" | "disgusted" | 
+    "happy" | "kiss" | "neutral" | "sad" | "scream" | 
+    "talking" | "yawn"
+  >("neutral");
+
+  const { speak } = useSpeech();
+
+  useEffect(() => {
+    const prenom = localStorage.getItem("prenom") || "mon ami";
+    const message = `Bonjour ${prenom} ! Je suis QTrobot, ton compagnon d'apprentissage rigolo et motivé ! Prêt pour une super aventure mathématique ? Choisis ton niveau pour commencer.`;
+
+    speak(
+      message,
+      () => setCurrentExpression("talking"),
+      () => setCurrentExpression("neutral")
+    );
+  }, []);
 
   return (
     <div style={{

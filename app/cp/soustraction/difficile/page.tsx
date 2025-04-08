@@ -1,16 +1,26 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSpeech } from "@/app/hooks/useSpeech";
 import QTRobot from "@/app/components/QTRobot";
 
+
 export default function SoustractionDifficile() {
-  const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "confused">("neutral");
+
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
 
-  // Exercices de soustraction niveau difficile (nombres jusqu'à 30, avec retenue)
+  const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "talking">("neutral");
+  const { speak } = useSpeech();
+  useEffect(() => {
+    speak(
+      exercises[currentQuestion].question,
+      () => setCurrentExpression("talking"),
+      () => setCurrentExpression("neutral")
+    );
+  }, [currentQuestion]);
   const exercises = [
     { question: "25 - 18 = ?", answer: 7 },
     { question: "30 - 14 = ?", answer: 16 },

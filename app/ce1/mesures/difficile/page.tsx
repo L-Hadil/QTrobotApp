@@ -2,12 +2,22 @@
 
 import { useState } from "react";
 import QTRobot from "@/app/components/QTRobot";
+import { useEffect } from "react";
+import { useSpeech } from "@/app/hooks/useSpeech";
 
 export default function MesuresDifficileCE1() {
-  const [currentExpression, setCurrentExpression] = useState("neutral");
+  const [currentExpression, setCurrentExpression] = useState<"happy" |"talking" |"sad" | "neutral">("neutral");
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [currentQuestion, setCurrentQuestion] = useState(0);
+  const { speak } = useSpeech();
 
+  useEffect(() => {
+    speak(
+      questions[currentQuestion].question,
+      () => setCurrentExpression("talking"),
+      () => setCurrentExpression("neutral")
+    );
+  }, [currentQuestion]);
   const questions = [
     {
       question: "Combien de mètres y a-t-il dans 3km et 25m?",

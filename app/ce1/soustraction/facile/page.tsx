@@ -1,15 +1,24 @@
 "use client";
-
+import { useEffect } from "react";
+import { useSpeech } from "@/app/hooks/useSpeech";
 import { useState } from "react";
 import QTRobot from "@/app/components/QTRobot";
 
 export default function SoustractionFacileCE1() {
-  const [currentExpression, setCurrentExpression] = useState<"happy" | "confused" | "sad" | "neutral">("neutral");
+  const [currentExpression, setCurrentExpression] = useState<"happy" |"talking" |"sad" | "neutral">("neutral");
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
+  const { speak } = useSpeech();
 
+  useEffect(() => {
+    speak(
+      questions[currentQuestion].problem,
+      () => setCurrentExpression("talking"),
+      () => setCurrentExpression("neutral")
+    );
+  }, [currentQuestion]);
   const questions = [
     { problem: "45 - 23 =", answer: 22 },
     { problem: "78 - 36 =", answer: 42 },
