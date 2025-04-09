@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { useSpeech } from "@/app/hooks/useSpeech"; 
 import QTRobot from "@/app/components/QTRobot";
+import { saveSessionToDatabase } from "@/app/utils/saveToDatabase";
+
 
 export default function AdditionDifficilePage() {
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
@@ -27,13 +29,20 @@ export default function AdditionDifficilePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (parseInt(userAnswer) === exercise.answer) {
-      setScore({ ...score, correct: score.correct + 1 });
-      setCurrentExpression("happy");
-    } else {
-      setScore({ ...score, incorrect: score.incorrect + 1 });
-      setCurrentExpression("sad");
+    if (currentQuestion === 20) {
+      const niveau = localStorage.getItem("niveau") || "";
+      const categorie = localStorage.getItem("categorie") || "";
+      const difficulte = localStorage.getItem("difficulte") || "";
+    
+      saveSessionToDatabase({
+        correct: score.correct,
+        incorrect: score.incorrect,
+        niveau,
+        categorie,
+        difficulte,
+      });
     }
+    
     setShowResult(true);
   };
 
@@ -49,13 +58,20 @@ export default function AdditionDifficilePage() {
   const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "talking">("neutral");
   const { speak } = useSpeech();
   useEffect(() => {
+    localStorage.setItem("niveau", "CP");
+    localStorage.setItem("categorie", "Addition");
+    localStorage.setItem("difficulte", "Difficile");
+  }, []);
+  
+  useEffect(() => {
     speak(
       exercise.question,
       () => setCurrentExpression("talking"),
       () => setCurrentExpression("neutral")
     );
   }, [exercise]);
-    
+  
+  
   return (
     <div style={{
       display: "flex",

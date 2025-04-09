@@ -18,10 +18,10 @@
         "name": "next"
       }
     ],
-    "baseUrl": ".",  // ✅ Ajouté pour corriger l'import absolu
+    "baseUrl": ".",  
     "paths": {
       "@/*": ["./*"],
-      "@/components/*": ["components/*"]  // ✅ Assure-toi que cette ligne est là
+      "@/components/*": ["components/*"]  
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

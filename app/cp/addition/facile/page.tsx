@@ -1,36 +1,78 @@
 "use client";
+
 import { useEffect, useState } from "react";
-import { useSpeech } from "@/app/hooks/useSpeech"; 
+import { useSpeech } from "@/app/hooks/useSpeech";
 import QTRobot from "@/app/components/QTRobot";
+import { saveSessionToDatabase } from "@/app/utils/saveToDatabase";
 
 export default function AdditionFacilePage() {
-
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [showResult, setShowResult] = useState(false);
+  const [userAnswer, setUserAnswer] = useState("");
+  const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "talking">("neutral");
 
+  const { speak } = useSpeech();
+
+ 
+  useEffect(() => {
+    localStorage.setItem("categorie", "Addition");
+    localStorage.setItem("niveau", "CP");
+    localStorage.setItem("difficulte", "facile");
+  }, []);
+
+  useEffect(() => {
+    if (currentQuestion === 20) {
+      const niveau = localStorage.getItem("niveau") || "";
+      const categorie = localStorage.getItem("categorie") || "";
+      const difficulte = localStorage.getItem("difficulte") || "";
+  
+      saveSessionToDatabase({
+        correct: score.correct,
+        incorrect: score.incorrect,
+        niveau,
+        categorie,
+        difficulte,
+      });
+    }
+  }, [currentQuestion]);
+  
   const generateExercise = () => {
     const a = Math.floor(Math.random() * 6);
     const b = Math.floor(Math.random() * 6);
-    return { 
-      question: `${a} + ${b} = ?`, 
+    return {
+      question: `${a} + ${b} = ?`,
       answer: a + b,
       explanation: `Quand on ajoute ${a} et ${b}, on obtient ${a + b}.`
     };
   };
 
   const [exercise, setExercise] = useState(generateExercise());
-  const [userAnswer, setUserAnswer] = useState("");
+
+  useEffect(() => {
+    speak(
+      exercise.question,
+      () => setCurrentExpression("talking"),
+      () => setCurrentExpression("neutral")
+    );
+  }, [exercise]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (parseInt(userAnswer) === exercise.answer) {
-      setScore({ ...score, correct: score.correct + 1 });
+    const isCorrect = parseInt(userAnswer) === exercise.answer;
+
+    if (isCorrect) {
+      const newCorrect = score.correct + 1;
+      setScore({ ...score, correct: newCorrect });
       setCurrentExpression("happy");
+      localStorage.setItem("correct", newCorrect.toString());
     } else {
-      setScore({ ...score, incorrect: score.incorrect + 1 });
+      const newIncorrect = score.incorrect + 1;
+      setScore({ ...score, incorrect: newIncorrect });
       setCurrentExpression("sad");
+      localStorage.setItem("incorrect", newIncorrect.toString());
     }
+
     setShowResult(true);
   };
 
@@ -43,15 +85,7 @@ export default function AdditionFacilePage() {
       setShowResult(false);
     }
   };
-  const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "talking">("neutral");
-  const { speak } = useSpeech();
-  useEffect(() => {
-    speak(
-      exercise.question,
-      () => setCurrentExpression("talking"),
-      () => setCurrentExpression("neutral")
-    );
-  }, [exercise]);
+
   return (
     <div style={{
       display: "flex",
@@ -75,9 +109,13 @@ export default function AdditionFacilePage() {
         maxWidth: "500px",
         width: "100%"
       }}>
-        <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem", color: "#3b82f6" }}>Addition facile (nombres de 0 à 5)</h1>
-        <p style={{ fontSize: "1.2rem", marginBottom: "0.5rem", color: "black" }}>Question {currentQuestion}/20</p>
-        
+        <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem", color: "#3b82f6" }}>
+          Addition facile (nombres de 0 à 5)
+        </h1>
+        <p style={{ fontSize: "1.2rem", marginBottom: "0.5rem", color: "black" }}>
+          Question {currentQuestion}/20
+        </p>
+
         <div style={{
           fontSize: "2rem",
           fontWeight: "bold",
@@ -93,7 +131,7 @@ export default function AdditionFacilePage() {
               type="number"
               value={userAnswer}
               onChange={(e) => setUserAnswer(e.target.value)}
-              style={{ 
+              style={{
                 padding: "10px",
                 fontSize: "1.5rem",
                 width: "100px",
@@ -107,9 +145,9 @@ export default function AdditionFacilePage() {
               max="10"
               required
             />
-            <button 
-              type="submit" 
-              style={{ 
+            <button
+              type="submit"
+              style={{
                 padding: "10px 20px",
                 backgroundColor: "#3b82f6",
                 color: "white",
@@ -124,7 +162,7 @@ export default function AdditionFacilePage() {
           </form>
         ) : (
           <div style={{ marginBottom: "1.5rem" }}>
-            <p style={{ 
+            <p style={{
               fontSize: "1.2rem",
               color: parseInt(userAnswer) === exercise.answer ? "#10b981" : "#ef4444",
               fontWeight: "bold"
@@ -133,9 +171,9 @@ export default function AdditionFacilePage() {
             </p>
             <p style={{ fontSize: "1.1rem" }}>{exercise.explanation}</p>
             {currentQuestion < 20 && (
-              <button 
+              <button
                 onClick={nextQuestion}
-                style={{ 
+                style={{
                   padding: "10px 20px",
                   backgroundColor: "#10b981",
                   color: "white",
@@ -152,7 +190,7 @@ export default function AdditionFacilePage() {
           </div>
         )}
 
-        <div style={{ 
+        <div style={{
           display: "flex",
           justifyContent: "space-around",
           marginTop: "1.5rem"
@@ -168,7 +206,7 @@ export default function AdditionFacilePage() {
         </div>
 
         {currentQuestion === 20 && (
-          <div style={{ 
+          <div style={{
             marginTop: "2rem",
             padding: "1rem",
             backgroundColor: "#e0f2fe",
@@ -178,7 +216,7 @@ export default function AdditionFacilePage() {
             <p style={{ fontSize: "1.2rem" }}>
               Tu as réussi {score.correct} sur 20 questions !
             </p>
-            <p style={{ 
+            <p style={{
               fontSize: "1.3rem",
               fontWeight: "bold",
               color: score.correct >= 15 ? "#10b981" : score.correct >= 10 ? "#f59e0b" : "#ef4444"

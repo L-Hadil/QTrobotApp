@@ -23,7 +23,6 @@ export default function FeedbackPage() {
     setPrenom(storedPrenom);
     stopTimer();
 
-    // Voix
     speak(
       `Merci ${storedPrenom} d’avoir utilisé QT Robot. Tu as passé ${minutes} minutes et ${seconds} secondes avec nous. Dis-nous ce que tu as pensé de cette aventure en choisissant une des expressions ci-dessous.`,
       () => setCurrentExpression("talking"),
@@ -31,9 +30,30 @@ export default function FeedbackPage() {
     );
   }, []);
 
-  const handleSelect = (expr: string) => {
+  const handleSelect = async (expr: string) => {
     setSelected(expr);
-    // ➕ à relier plus tard à MongoDB : prénom, expr, minutes, seconds
+
+    const niveau = localStorage.getItem("niveau") || "Inconnu";
+    const categorie = localStorage.getItem("categorie") || "Inconnue";
+    const correctAnswers = parseInt(localStorage.getItem("correct") || "0");
+    const incorrectAnswers = parseInt(localStorage.getItem("incorrect") || "0");
+    const difficulte = localStorage.getItem("difficulte") || "";
+
+
+    await fetch("/api/save-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prenom,
+        niveau,
+        categorie,
+        correctAnswers,
+        
+        incorrectAnswers,
+        duration: minutes * 60 + seconds,
+        expression: expr,
+      }),
+    });
   };
 
   return (
@@ -48,10 +68,10 @@ export default function FeedbackPage() {
       alignItems: "center"
     }}>
       <h1 style={{ color: "#2e7d32", fontSize: "2rem", marginBottom: "0.5rem" }}>
-        Merci {prenom} d’avoir utilisé QT Robot ! 🤖
+        Merci {prenom} d’avoir utilisé QT Robot
       </h1>
       <p style={{ marginBottom: "1.5rem", color: "#333", fontSize: "1.1rem" }}>
-        ⏱️ Tu as passé {minutes} minutes et {seconds} secondes avec nous.
+        Tu as passé {minutes} minutes et {seconds} secondes avec nous.
       </p>
 
       <h2 style={{
@@ -126,7 +146,7 @@ export default function FeedbackPage() {
           padding: "12px 24px",
           borderRadius: "10px"
         }}>
-          Merci pour ton retour {prenom} 💚
+          Merci pour ton retour {prenom}
         </p>
       )}
     </div>
