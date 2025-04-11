@@ -1,13 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import QTRobot from "@/app/components/QTRobot";
-import { useEffect } from "react";
 import { useSpeech } from "@/app/hooks/useSpeech";
+import { useRouter } from "next/navigation";
+
 export default function MultiplicationDifficileCE1() {
-  const [currentExpression, setCurrentExpression] = useState<"happy" |"talking" |"sad" | "neutral">("neutral");
+  const router = useRouter();
+  const [currentExpression, setCurrentExpression] = useState<"happy" | "talking" | "sad" | "neutral">("neutral");
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [userAnswer, setUserAnswer] = useState("");
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [startTime] = useState(Date.now()); // Track session start time
   const { speak } = useSpeech();
 
   useEffect(() => {
@@ -17,6 +22,32 @@ export default function MultiplicationDifficileCE1() {
       () => setCurrentExpression("neutral")
     );
   }, [currentQuestion]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const isCorrect = userAnswer === questions[currentQuestion].answer;
+    setScore(prev => ({
+      ...prev,
+      correct: isCorrect ? prev.correct + 1 : prev.correct,
+      incorrect: !isCorrect ? prev.incorrect + 1 : prev.incorrect
+    }));
+    setCurrentExpression(isCorrect ? "happy" : "sad");
+    setShowFeedback(true);
+
+    setTimeout(() => {
+      if (currentQuestion < questions.length - 1) {
+        // Move to next question
+        setCurrentQuestion(currentQuestion + 1);
+        setUserAnswer("");
+        setShowFeedback(false);
+        setCurrentExpression("neutral");
+      } else {
+        // Save results and redirect when all questions are answered
+        saveResults();
+      }
+    }, 1500);
+  };
   const questions = [
     { question: "7 × 2 = ?", answer: "14", table: 7 },
     { question: "8 × 3 = ?", answer: "24", table: 8 },
@@ -40,30 +71,33 @@ export default function MultiplicationDifficileCE1() {
     { question: "8 × 5 = ?", answer: "40", table: 8 }
   ];
 
-  const [userAnswer, setUserAnswer] = useState("");
-  const [showFeedback, setShowFeedback] = useState(false);
+  const saveResults = () => {
+    const endTime = Date.now();
+    const timeSpentSeconds = Math.round((endTime - startTime) / 1000);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (userAnswer === questions[currentQuestion].answer) {
-      setScore({ ...score, correct: score.correct + 1 });
-      setCurrentExpression("happy");
-    } else {
-      setScore({ ...score, incorrect: score.incorrect + 1 });
-      setCurrentExpression("sad");
-    }
+    const results = {
+      name: localStorage.getItem("prenom") ,
+      age: localStorage.getItem("age"),
+      niveau:  "CE1",
+      exercise: "Multiplication Difficile",
+      totalQuestions: questions.length,
+      correctAnswers: score.correct,
+      incorrectAnswers: score.incorrect+1,
+      timeSpent: timeSpentSeconds,
+      completionDate: new Date().toISOString(),
+      details: questions.map((q, i) => ({
+        question: q.question,
+        userAnswer: i === currentQuestion ? userAnswer : "N/A", // Only track current for simplicity
+        isCorrect: i === currentQuestion ? userAnswer === q.answer : false
+      }))
+    };
 
-    setShowFeedback(true);
-    
-    setTimeout(() => {
-      if (currentQuestion < questions.length - 1) {
-        setCurrentQuestion(currentQuestion + 1);
-        setUserAnswer("");
-        setShowFeedback(false);
-        setCurrentExpression("neutral");
-      }
-    }, 1500);
+    // Save to localStorage
+    const existingData = JSON.parse(localStorage.getItem("mathResults") || "[]");
+    localStorage.setItem("mathResults", JSON.stringify([...existingData, results]));
+
+    // Redirect to recap page
+    router.push(`/recap?correct=${score.correct}&total=${questions.length}&time=${timeSpentSeconds}`);
   };
 
   return (

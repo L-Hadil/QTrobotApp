@@ -1,17 +1,30 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSpeech } from "@/app/hooks/useSpeech"; 
+import { useSpeech } from "@/app/hooks/useSpeech";
 import QTRobot from "@/app/components/QTRobot";
+import { useRouter } from "next/navigation";
 
 export default function AdditionDifficilePage() {
+  const [currentExpression, setCurrentExpression] = useState<"happy" | "talking" | "sad" | "neutral">("neutral");
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
-  const [currentQuestion, setCurrentQuestion] = useState(1);
-  const [showResult, setShowResult] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [userAnswer, setUserAnswer] = useState("");
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [childName, setChildName] = useState("");
+  const [childAge, setChildAge] = useState("");
+  const [startTime] = useState(Date.now());
+  const { speak } = useSpeech();
+  const router = useRouter();
+
+  // Load child data from localStorage
+  useEffect(() => {
+    setChildName(localStorage.getItem("prenom") || "Anonyme");
+    setChildAge(localStorage.getItem("age") || "Inconnu");
+  }, []);
 
   const generateExercise = () => {
     const a = Math.floor(Math.random() * 21); // Nombres de 0 à 20
     const b = Math.floor(Math.random() * 21);
-    // Ajout d'une aide visuelle pour certaines questions
     const visualHelp = Math.random() > 0.7 ? 
       `\n(Par exemple: ${a} + ${b} = ${a} + ${10} + ${b-10} = ${a+10} + ${b-10} = ${a+b})` : 
       "";
@@ -23,31 +36,7 @@ export default function AdditionDifficilePage() {
   };
 
   const [exercise, setExercise] = useState(generateExercise());
-  const [userAnswer, setUserAnswer] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (parseInt(userAnswer) === exercise.answer) {
-      setScore({ ...score, correct: score.correct + 1 });
-      setCurrentExpression("happy");
-    } else {
-      setScore({ ...score, incorrect: score.incorrect + 1 });
-      setCurrentExpression("sad");
-    }
-    setShowResult(true);
-  };
-
-  const nextQuestion = () => {
-    if (currentQuestion < 20) {
-      setCurrentQuestion(currentQuestion + 1);
-      setExercise(generateExercise());
-      setUserAnswer("");
-      setCurrentExpression("neutral");
-      setShowResult(false);
-    }
-  };
-  const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "talking">("neutral");
-  const { speak } = useSpeech();
   useEffect(() => {
     speak(
       exercise.question,
@@ -55,7 +44,68 @@ export default function AdditionDifficilePage() {
       () => setCurrentExpression("neutral")
     );
   }, [exercise]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const isCorrect = parseInt(userAnswer) === exercise.answer;
     
+    setScore(prev => ({
+      correct: isCorrect ? prev.correct + 1 : prev.correct,
+      incorrect: !isCorrect ? prev.incorrect + 1 : prev.incorrect
+    }));
+    setCurrentExpression(isCorrect ? "happy" : "sad");
+    setShowFeedback(true);
+
+    setTimeout(() => {
+      if (currentQuestion < 19) {
+        setCurrentQuestion(currentQuestion + 1);
+        setExercise(generateExercise());
+        setUserAnswer("");
+        setShowFeedback(false);
+        setCurrentExpression("neutral");
+      } else {
+        saveResults();
+      }
+    }, 1500);
+  };
+
+  const saveResults = () => {
+    const endTime = Date.now();
+    const timeSpentSeconds = Math.round((endTime - startTime) / 1000);
+
+    const results = {
+      name: childName,
+      age: childAge,
+      niveau: localStorage.getItem("niveau") || "CP",
+      exercise: "Addition Difficile",
+      totalQuestions: 20,
+      correctAnswers: score.correct,
+      incorrectAnswers: score.incorrect,
+      timeSpent: timeSpentSeconds,
+      completionDate: new Date().toISOString(),
+      details: {
+        problem: exercise.question,
+        userAnswer: userAnswer,
+        correctAnswer: exercise.answer,
+        isCorrect: parseInt(userAnswer) === exercise.answer,
+        explanation: exercise.explanation
+      }
+    };
+
+    // Save to localStorage
+    const existingData = JSON.parse(localStorage.getItem("mathResults") || "[]");
+    localStorage.setItem("mathResults", JSON.stringify([...existingData, results]));
+
+    // Redirect to recap page
+    router.push(`/recap?name=${encodeURIComponent(childName)}&age=${childAge}&correct=${score.correct}&total=20&time=${timeSpentSeconds}`);
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}m ${secs < 10 ? '0' : ''}${secs}s`;
+  };
+
   return (
     <div style={{
       display: "flex",
@@ -67,6 +117,34 @@ export default function AdditionDifficilePage() {
       padding: "20px",
       fontFamily: "'Comic Sans MS', cursive, sans-serif"
     }}>
+      {/* Child info display */}
+      <div style={{
+        position: "absolute",
+        top: "10px",
+        left: "20px",
+        fontSize: "1rem",
+        color: "#555",
+        background: "rgba(255,255,255,0.8)",
+        padding: "6px 12px",
+        borderRadius: "8px"
+      }}>
+        {childName} ({childAge} ans)
+      </div>
+
+      {/* Timer display */}
+      <div style={{ 
+        position: "absolute", 
+        top: "10px", 
+        right: "20px", 
+        fontSize: "1rem", 
+        color: "#555", 
+        background: "rgba(255,255,255,0.8)", 
+        padding: "6px 12px", 
+        borderRadius: "8px" 
+      }}>
+        ⏱ Temps passé : {formatTime(Math.round((Date.now() - startTime) / 1000))}
+      </div>
+
       <div style={{ marginBottom: "1rem" }}>
         <QTRobot expression={currentExpression} />
       </div>
@@ -80,7 +158,7 @@ export default function AdditionDifficilePage() {
         width: "100%"
       }}>
         <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem", color: "#ef4444" }}>Addition difficile (nombres de 0 à 20)</h1>
-        <p style={{ fontSize: "1.2rem", marginBottom: "0.5rem", color: "black" }}>Question {currentQuestion}/20</p>
+        <p style={{ fontSize: "1.2rem", marginBottom: "0.5rem", color: "black" }}>Question {currentQuestion + 1}/20</p>
         
         <div style={{
           fontSize: "2rem",
@@ -91,7 +169,7 @@ export default function AdditionDifficilePage() {
           {exercise.question}
         </div>
 
-        {!showResult ? (
+        {!showFeedback ? (
           <form onSubmit={handleSubmit} style={{ marginBottom: "1.5rem" }}>
             <input
               type="number"
@@ -136,23 +214,6 @@ export default function AdditionDifficilePage() {
               {parseInt(userAnswer) === exercise.answer ? "Fantastique !" : "Essaie encore !"}
             </p>
             <p style={{ fontSize: "1.1rem", whiteSpace: "pre-line" }}>{exercise.explanation}</p>
-            {currentQuestion < 20 && (
-              <button 
-                onClick={nextQuestion}
-                style={{ 
-                  padding: "10px 20px",
-                  backgroundColor: "#f59e0b",
-                  color: "white",
-                  borderRadius: "8px",
-                  border: "none",
-                  fontSize: "1rem",
-                  cursor: "pointer",
-                  marginTop: "1rem"
-                }}
-              >
-                Question suivante
-              </button>
-            )}
           </div>
         )}
 
@@ -171,7 +232,7 @@ export default function AdditionDifficilePage() {
           </div>
         </div>
 
-        {currentQuestion === 20 && (
+        {currentQuestion === 19 && showFeedback && (
           <div style={{ 
             marginTop: "2rem",
             padding: "1rem",
@@ -189,16 +250,6 @@ export default function AdditionDifficilePage() {
             }}>
               {score.correct >= 17 ? "Incroyable !" : score.correct >= 14 ? "Très bien !" : "Courage, continue !"}
             </p>
-            {score.correct < 17 && (
-              <div style={{ marginTop: "0.5rem" }}>
-                <p>N'hésite pas à :</p>
-                <ul style={{ textAlign: "left", margin: "0.5rem 0 0 1rem" }}>
-                  <li>Utiliser tes doigts pour compter</li>
-                  <li>Décomposer les nombres (10 + x)</li>
-                  <li>Prendre ton temps</li>
-                </ul>
-              </div>
-            )}
           </div>
         )}
       </div>

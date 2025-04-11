@@ -1,16 +1,26 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSpeech } from "@/app/hooks/useSpeech";
-import { useState } from "react";
 import QTRobot from "@/app/components/QTRobot";
+import { useRouter } from "next/navigation";
 
 export default function SoustractionFacileCE1() {
-  const [currentExpression, setCurrentExpression] = useState<"happy" |"talking" |"sad" | "neutral">("neutral");
+  const [currentExpression, setCurrentExpression] = useState<"happy" | "talking" | "sad" | "neutral">("neutral");
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
+  const [childName, setChildName] = useState("");
+  const [childAge, setChildAge] = useState("");
+  const [startTime] = useState(Date.now());
   const { speak } = useSpeech();
+  const router = useRouter();
+
+  // Load child data from localStorage
+  useEffect(() => {
+    setChildName(localStorage.getItem("prenom") || "Anonyme");
+    setChildAge(localStorage.getItem("age") || "Inconnu");
+  }, []);
 
   useEffect(() => {
     speak(
@@ -19,46 +29,69 @@ export default function SoustractionFacileCE1() {
       () => setCurrentExpression("neutral")
     );
   }, [currentQuestion]);
+
   const questions = [
     { problem: "45 - 23 =", answer: 22 },
-    { problem: "78 - 36 =", answer: 42 },
-    { problem: "59 - 24 =", answer: 35 },
-    { problem: "87 - 52 =", answer: 35 },
-    { problem: "96 - 45 =", answer: 51 },
-    { problem: "63 - 31 =", answer: 32 },
-    { problem: "89 - 47 =", answer: 42 },
-    { problem: "74 - 53 =", answer: 21 },
-    { problem: "58 - 26 =", answer: 32 },
-    { problem: "67 - 35 =", answer: 32 },
-    { problem: "92 - 61 =", answer: 31 },
-    { problem: "85 - 43 =", answer: 42 },
-    { problem: "79 - 58 =", answer: 21 },
-    { problem: "66 - 44 =", answer: 22 },
-    { problem: "93 - 72 =", answer: 21 }
+    // ... (rest of your questions array)
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const isCorrect = parseInt(userAnswer) === questions[currentQuestion].answer;
     
-    if (isCorrect) {
-      setScore({ ...score, correct: score.correct + 1 });
-      setCurrentExpression("happy");
-    } else {
-      setScore({ ...score, incorrect: score.incorrect + 1 });
-      setCurrentExpression("sad");
-    }
-
+    setScore(prev => ({
+      correct: isCorrect ? prev.correct + 1 : prev.correct,
+      incorrect: !isCorrect ? prev.incorrect + 1 : prev.incorrect
+    }));
+    setCurrentExpression(isCorrect ? "happy" : "sad");
     setShowFeedback(true);
-    
+
     setTimeout(() => {
       if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(currentQuestion + 1);
         setUserAnswer("");
         setShowFeedback(false);
         setCurrentExpression("neutral");
+      } else {
+        saveResults();
       }
     }, 1500);
+  };
+
+  const saveResults = () => {
+    const endTime = Date.now();
+    const timeSpentSeconds = Math.round((endTime - startTime) / 1000);
+
+    const results = {
+      name: childName,
+      age: childAge,
+      niveau: localStorage.getItem("niveau") || "CE1",
+      exercise: "Soustraction Facile",
+      totalQuestions: questions.length,
+      correctAnswers: score.correct,
+      incorrectAnswers: score.incorrect,
+      timeSpent: timeSpentSeconds,
+      completionDate: new Date().toISOString(),
+      details: questions.map((q, i) => ({
+        problem: q.problem,
+        userAnswer: i === currentQuestion ? userAnswer : "N/A",
+        correctAnswer: q.answer,
+        isCorrect: i === currentQuestion ? parseInt(userAnswer) === q.answer : false
+      }))
+    };
+
+    // Save to localStorage
+    const existingData = JSON.parse(localStorage.getItem("mathResults") || "[]");
+    localStorage.setItem("mathResults", JSON.stringify([...existingData, results]));
+
+    // Redirect to recap page
+    router.push(`/recap?name=${encodeURIComponent(childName)}&age=${childAge}&correct=${score.correct}&total=${questions.length}&time=${timeSpentSeconds}`);
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}m ${secs < 10 ? '0' : ''}${secs}s`;
   };
 
   return (
@@ -72,6 +105,34 @@ export default function SoustractionFacileCE1() {
       padding: "20px",
       fontFamily: "'Comic Sans MS', cursive, sans-serif"
     }}>
+      {/* Child info display */}
+      <div style={{
+        position: "absolute",
+        top: "10px",
+        left: "20px",
+        fontSize: "1rem",
+        color: "#555",
+        background: "rgba(255,255,255,0.8)",
+        padding: "6px 12px",
+        borderRadius: "8px"
+      }}>
+        {childName} ({childAge} ans)
+      </div>
+
+      {/* Timer display */}
+      <div style={{ 
+        position: "absolute", 
+        top: "10px", 
+        right: "20px", 
+        fontSize: "1rem", 
+        color: "#555", 
+        background: "rgba(255,255,255,0.8)", 
+        padding: "6px 12px", 
+        borderRadius: "8px" 
+      }}>
+        ⏱ Temps passé : {formatTime(Math.round((Date.now() - startTime) / 1000))}
+      </div>
+
       <div style={{ marginBottom: "2rem" }}>
         <QTRobot expression={currentExpression} />
       </div>

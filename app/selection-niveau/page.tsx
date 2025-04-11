@@ -25,6 +25,11 @@ export default function LevelSelection() {
     );
   }, []);
 
+  // Function to handle level selection and store it in localStorage
+  const handleLevelSelection = (niveau: "CP" | "CE1") => {
+    localStorage.setItem("niveau", niveau); // Save selected level
+  };
+
   return (
     <div style={{
       display: "flex",
@@ -54,6 +59,7 @@ export default function LevelSelection() {
             borderRadius: "5px",
             fontSize: "1.2rem"
           }}
+          onClick={() => handleLevelSelection("CP")} // Store CP when clicked
         >
           CP
         </Link>
@@ -67,6 +73,7 @@ export default function LevelSelection() {
             borderRadius: "5px",
             fontSize: "1.2rem"
           }}
+          onClick={() => handleLevelSelection("CE1")} // Store CE1 when clicked
         >
           CE1
         </Link>

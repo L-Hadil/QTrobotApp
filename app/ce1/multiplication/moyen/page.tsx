@@ -1,22 +1,20 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSpeech } from "@/app/hooks/useSpeech";
-import { useState } from "react";
 import QTRobot from "@/app/components/QTRobot";
+import { useRouter } from "next/navigation";
 
 export default function MultiplicationMoyenCE1() {
-  const [currentExpression, setCurrentExpression] = useState<"happy" |"talking" |"sad" | "neutral">("neutral");
+  const [currentExpression, setCurrentExpression] = useState<"happy" | "talking" | "sad" | "neutral">("neutral");
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [userAnswer, setUserAnswer] = useState("");
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [childName, setChildName] = useState("");
+  const [childAge, setChildAge] = useState("");
+  const [startTime] = useState(Date.now());
   const { speak } = useSpeech();
-
-  useEffect(() => {
-    speak(
-      questions[currentQuestion].question,
-      () => setCurrentExpression("talking"),
-      () => setCurrentExpression("neutral")
-    );
-  }, [currentQuestion]);
+  const router = useRouter();
   const questions = [
     { question: "3 × 2 = ?", answer: "6", table: 3 },
     { question: "4 × 3 = ?", answer: "12", table: 4 },
@@ -40,30 +38,77 @@ export default function MultiplicationMoyenCE1() {
     { question: "4 × 5 = ?", answer: "20", table: 4 }
   ];
 
-  const [userAnswer, setUserAnswer] = useState("");
-  const [showFeedback, setShowFeedback] = useState(false);
+  // Load child data from localStorage
+  useEffect(() => {
+    setChildName(localStorage.getItem("prenom") || "Anonyme");
+    setChildAge(localStorage.getItem("age") || "Inconnu");
+  }, []);
+
+  useEffect(() => {
+    speak(
+      questions[currentQuestion].question,
+      () => setCurrentExpression("talking"),
+      () => setCurrentExpression("neutral")
+    );
+  }, [currentQuestion]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (userAnswer === questions[currentQuestion].answer) {
-      setScore({ ...score, correct: score.correct + 1 });
-      setCurrentExpression("happy");
-    } else {
-      setScore({ ...score, incorrect: score.incorrect + 1 });
-      setCurrentExpression("sad");
-    }
-
+    const isCorrect = userAnswer === questions[currentQuestion].answer;
+    setScore(prev => ({
+      ...prev,
+      correct: isCorrect ? prev.correct + 1 : prev.correct,
+      incorrect: !isCorrect ? prev.incorrect + 1 : prev.incorrect
+    }));
+    setCurrentExpression(isCorrect ? "happy" : "sad");
     setShowFeedback(true);
-    
+
     setTimeout(() => {
       if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(currentQuestion + 1);
         setUserAnswer("");
         setShowFeedback(false);
         setCurrentExpression("neutral");
+      } else {
+        saveResults();
       }
     }, 1500);
+  };
+
+  const saveResults = () => {
+    const endTime = Date.now();
+    const timeSpentSeconds = Math.round((endTime - startTime) / 1000);
+
+    const results = {
+      name: childName,
+      age: childAge,
+      niveau: localStorage.getItem("niveau") || "CE1",
+      exercise: "Multiplication Moyen",
+      totalQuestions: questions.length,
+      correctAnswers: score.correct,
+      incorrectAnswers: score.incorrect+1,
+      timeSpent: timeSpentSeconds,
+      completionDate: new Date().toISOString(),
+      details: questions.map((q, i) => ({
+        question: q.question,
+        userAnswer: i === currentQuestion ? userAnswer : "N/A",
+        isCorrect: i === currentQuestion ? userAnswer === q.answer : false
+      }))
+    };
+
+    // Save to localStorage
+    const existingData = JSON.parse(localStorage.getItem("mathResults") || "[]");
+    localStorage.setItem("mathResults", JSON.stringify([...existingData, results]));
+
+    // Redirect to recap page
+    router.push(`/recap?name=${encodeURIComponent(childName)}&age=${childAge}&correct=${score.correct}&total=${questions.length}&time=${timeSpentSeconds}`);
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}m ${secs < 10 ? '0' : ''}${secs}s`;
   };
 
   return (
@@ -77,6 +122,34 @@ export default function MultiplicationMoyenCE1() {
       padding: "20px",
       fontFamily: "'Comic Sans MS', cursive, sans-serif"
     }}>
+      {/* Child info display */}
+      <div style={{
+        position: "absolute",
+        top: "10px",
+        left: "20px",
+        fontSize: "1rem",
+        color: "#555",
+        background: "rgba(255,255,255,0.8)",
+        padding: "6px 12px",
+        borderRadius: "8px"
+      }}>
+        {childName} ({childAge} ans)
+      </div>
+
+      {/* Timer display */}
+      <div style={{ 
+        position: "absolute", 
+        top: "10px", 
+        right: "20px", 
+        fontSize: "1rem", 
+        color: "#555", 
+        background: "rgba(255,255,255,0.8)", 
+        padding: "6px 12px", 
+        borderRadius: "8px" 
+      }}>
+        ⏱ Temps passé : {formatTime(Math.round((Date.now() - startTime) / 1000))}
+      </div>
+
       <div style={{ marginBottom: "2rem" }}>
         <QTRobot expression={currentExpression} />
       </div>

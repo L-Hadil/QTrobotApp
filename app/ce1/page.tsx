@@ -11,10 +11,14 @@ export default function CE1Page() {
   const [currentExpression, setCurrentExpression] = useState<QTRobotExpression>("neutral");
   const { speak } = useSpeech();
   const [prenom, setPrenom] = useState("");
+  const [age, setAge] = useState(""); // Add age state
   const { minutes, seconds } = useGlobalTimer();
+
   useEffect(() => {
     const storedPrenom = localStorage.getItem("prenom") || "";
+    const storedAge = localStorage.getItem("age") || ""; // Get age from localStorage
     setPrenom(storedPrenom);
+    setAge(storedAge);
 
     speak(
       `Bienvenue ${storedPrenom} dans les exercices de CE1 ! Choisis une activité pour apprendre en t’amusant.`,
@@ -30,6 +34,13 @@ export default function CE1Page() {
     { id: 4, title: "Géométrie", link: "/ce1/geometrie", image: "/images/geometrie.jpg" },
   ];
 
+  const handleExerciseSelection = (exerciseTitle: string) => {
+    localStorage.setItem("ce1Exercise", exerciseTitle);
+    localStorage.setItem("lastExerciseTime", new Date().toISOString());
+    // Also store age with the exercise selection
+    localStorage.setItem("exerciseAge", age); // Persist age with exercise
+  };
+
   return (
     <div style={{
       display: "flex",
@@ -40,7 +51,6 @@ export default function CE1Page() {
       textAlign: "center",
       padding: "20px",
     }}>
-      {/* Timer visuel en haut à droite */}
       <div style={{ 
         position: "absolute", 
         top: "10px", 
@@ -62,6 +72,17 @@ export default function CE1Page() {
         Exercices de CE1
       </h1>
 
+      {/* Display child's age */}
+      {age && (
+        <p style={{ 
+          fontSize: "1.2rem", 
+          color: "#3b82f6",
+          marginBottom: "1rem"
+        }}>
+          Âge: {age} ans
+        </p>
+      )}
+
       <div style={{
         display: "flex",
         flexDirection: "row",
@@ -70,9 +91,38 @@ export default function CE1Page() {
         flexWrap: "wrap",
       }}>
         {exercises.map((exercise) => (
-          <Link key={exercise.id} href={exercise.link} className="button">
-            <img src={exercise.image} alt={exercise.title} style={{ width: "50px", marginBottom: "10px" }} />
-            <span style={{ marginLeft: "10px" }}>{exercise.title}</span>
+          <Link 
+            key={exercise.id} 
+            href={exercise.link}
+            onClick={() => handleExerciseSelection(exercise.title)}
+            className="button"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              padding: "15px",
+              backgroundColor: "#f0fdf4",
+              borderRadius: "10px",
+              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+              textDecoration: "none",
+              color: "#065f46",
+              transition: "transform 0.2s",
+              cursor: "pointer",
+              width: "120px",
+              
+            }}
+          >
+            <img 
+              src={exercise.image} 
+              alt={exercise.title} 
+              style={{ 
+                width: "50px", 
+                height: "50px", 
+                objectFit: "cover",
+                marginBottom: "10px" 
+              }} 
+            />
+            <span>{exercise.title}</span>
           </Link>
         ))}
       </div>

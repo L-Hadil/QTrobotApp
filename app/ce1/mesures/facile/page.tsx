@@ -1,15 +1,27 @@
 "use client";
-
-import { useState } from "react";
-import QTRobot from "@/app/components/QTRobot";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSpeech } from "@/app/hooks/useSpeech";
+import QTRobot from "@/app/components/QTRobot";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function MesuresFacileCE1() {
-  const [currentExpression, setCurrentExpression] = useState<"happy" |"talking" |"sad" | "neutral">("neutral");
+  const [currentExpression, setCurrentExpression] = useState<"happy" | "talking" | "sad" | "neutral">("neutral");
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [childName, setChildName] = useState("");
+  const [childAge, setChildAge] = useState("");
+  const [startTime] = useState(Date.now());
   const { speak } = useSpeech();
+  const router = useRouter();
+
+  // Load child data from localStorage
+  useEffect(() => {
+    setChildName(localStorage.getItem("prenom") || "Anonyme");
+    setChildAge(localStorage.getItem("age") || "Inconnu");
+  }, []);
 
   useEffect(() => {
     speak(
@@ -18,6 +30,7 @@ export default function MesuresFacileCE1() {
       () => setCurrentExpression("neutral")
     );
   }, [currentQuestion]);
+
   const questions = [
     {
       question: "Quelle unité utiliserais-tu pour mesurer un crayon?",
@@ -73,20 +86,16 @@ export default function MesuresFacileCE1() {
     }
   ];
 
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [showFeedback, setShowFeedback] = useState(false);
-
   const handleAnswer = (option: string) => {
     setSelectedOption(option);
     setShowFeedback(true);
     
-    if (option === questions[currentQuestion].answer) {
-      setScore({ ...score, correct: score.correct + 1 });
-      setCurrentExpression("happy");
-    } else {
-      setScore({ ...score, incorrect: score.incorrect + 1 });
-      setCurrentExpression("sad");
-    }
+    const isCorrect = option === questions[currentQuestion].answer;
+    setScore(prev => ({
+      correct: isCorrect ? prev.correct + 1 : prev.correct,
+      incorrect: !isCorrect ? prev.incorrect + 1 : prev.incorrect
+    }));
+    setCurrentExpression(isCorrect ? "happy" : "sad");
 
     setTimeout(() => {
       if (currentQuestion < questions.length - 1) {
@@ -94,8 +103,47 @@ export default function MesuresFacileCE1() {
         setSelectedOption(null);
         setShowFeedback(false);
         setCurrentExpression("neutral");
+      } else {
+        saveResults();
       }
     }, 2000);
+  };
+
+  const saveResults = () => {
+    const endTime = Date.now();
+    const timeSpentSeconds = Math.round((endTime - startTime) / 1000);
+
+    const results = {
+      name: childName,
+      age: childAge,
+      niveau: localStorage.getItem("niveau") || "CE1",
+      exercise: "Mesures Facile",
+      totalQuestions: questions.length,
+      correctAnswers: score.correct,
+      incorrectAnswers: score.incorrect,
+      timeSpent: timeSpentSeconds,
+      completionDate: new Date().toISOString(),
+      details: questions.map((q, i) => ({
+        problem: q.question,
+        userAnswer: i === currentQuestion ? selectedOption : "N/A",
+        correctAnswer: q.answer,
+        isCorrect: i === currentQuestion ? selectedOption === q.answer : false,
+        explanation: q.explanation || ""
+      }))
+    };
+
+    // Save to localStorage
+    const existingData = JSON.parse(localStorage.getItem("mathResults") || "[]");
+    localStorage.setItem("mathResults", JSON.stringify([...existingData, results]));
+
+    // Redirect to recap page
+    router.push(`/recap?name=${encodeURIComponent(childName)}&age=${childAge}&correct=${score.correct}&total=${questions.length}&time=${timeSpentSeconds}`);
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}m ${secs < 10 ? '0' : ''}${secs}s`;
   };
 
   return (
@@ -109,6 +157,34 @@ export default function MesuresFacileCE1() {
       padding: "20px",
       fontFamily: "'Comic Sans MS', cursive, sans-serif"
     }}>
+      {/* Child info display */}
+      <div style={{
+        position: "absolute",
+        top: "10px",
+        left: "20px",
+        fontSize: "1rem",
+        color: "#555",
+        background: "rgba(255,255,255,0.8)",
+        padding: "6px 12px",
+        borderRadius: "8px"
+      }}>
+        {childName} ({childAge} ans)
+      </div>
+
+      {/* Timer display */}
+      <div style={{ 
+        position: "absolute", 
+        top: "10px", 
+        right: "20px", 
+        fontSize: "1rem", 
+        color: "#555", 
+        background: "rgba(255,255,255,0.8)", 
+        padding: "6px 12px", 
+        borderRadius: "8px" 
+      }}>
+        ⏱ Temps passé : {formatTime(Math.round((Date.now() - startTime) / 1000))}
+      </div>
+
       <div style={{ marginBottom: "1rem" }}>
         <QTRobot expression={currentExpression} />
       </div>
@@ -125,11 +201,12 @@ export default function MesuresFacileCE1() {
         <p style={{ fontSize: "1.1rem", marginBottom: "1.5rem", color: "#4CAF50" }}>Question {currentQuestion + 1}/{questions.length}</p>
         
         {questions[currentQuestion].image && (
-          <img 
+          <Image 
             src={questions[currentQuestion].image} 
             alt="Illustration" 
+            width={200}
+            height={150}
             style={{ 
-              maxWidth: "200px", 
               margin: "0 auto 1rem",
               border: "2px solid #BDBDBD",
               borderRadius: "8px"
