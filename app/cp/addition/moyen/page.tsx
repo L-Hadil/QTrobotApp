@@ -2,6 +2,9 @@
 import { useEffect, useState } from "react";
 import { useSpeech } from "@/app/hooks/useSpeech"; 
 import QTRobot from "@/app/components/QTRobot";
+import { saveActivityToSession } from "@/app/utils/sessionUtils";
+
+
 
 export default function AdditionMoyenPage() {
 
@@ -24,27 +27,59 @@ export default function AdditionMoyenPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (parseInt(userAnswer) === exercise.answer) {
-      setScore({ ...score, correct: score.correct + 1 });
-      setCurrentExpression("happy");
-    } else {
-      setScore({ ...score, incorrect: score.incorrect + 1 });
-      setCurrentExpression("sad");
-    }
+    const isCorrect = parseInt(userAnswer) === exercise.answer;
+  
+    const newScore = {
+      correct: isCorrect ? score.correct + 1 : score.correct,
+      incorrect: !isCorrect ? score.incorrect + 1 : score.incorrect,
+    };
+  
+    setScore(newScore);
+    setCurrentExpression(isCorrect ? "happy" : "sad");
     setShowResult(true);
+  
+    // ✅ Envoie 1 réponse à Mongo
+    saveActivityToSession({
+      correct: isCorrect ? 1 : 0,
+      incorrect: !isCorrect ? 1 : 0,
+    });
+  
+    localStorage.setItem("correct", newScore.correct.toString());
+    localStorage.setItem("incorrect", newScore.incorrect.toString());
   };
+  
+  
 
   const nextQuestion = () => {
-    if (currentQuestion < 20) {
-      setCurrentQuestion(currentQuestion + 1);
-      setExercise(generateExercise());
-      setUserAnswer("");
-      setCurrentExpression("neutral");
-      setShowResult(false);
+    const isCorrect = parseInt(userAnswer) === exercise.answer;
+  
+    const updatedScore = {
+      correct: isCorrect ? score.correct + 1 : score.correct,
+      incorrect: !isCorrect ? score.incorrect + 1 : score.incorrect,
+    };
+  
+    setScore(updatedScore);
+  
+    if (currentQuestion === 20) {
+     
+      return;
     }
+  
+    setCurrentQuestion(currentQuestion + 1);
+    setExercise(generateExercise());
+    setUserAnswer("");
+    setCurrentExpression("neutral");
+    setShowResult(false);
   };
+  
   const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "talking">("neutral");
   const { speak } = useSpeech();
+  useEffect(() => {
+    localStorage.setItem("niveau", "CP");
+    localStorage.setItem("categorie", "Addition");
+    localStorage.setItem("difficulte", "Moyenne");
+  }, []);
+  
   useEffect(() => {
     speak(
       exercise.question,

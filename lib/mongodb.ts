@@ -7,9 +7,18 @@ export async function connectToDB() {
     return;
   }
 
-  if (mongoose.connection.readyState >= 1) return;
+  if (mongoose.connection.readyState >= 1) {
+    console.log("✅ MongoDB déjà connectée");
+    return;
+  }
 
-  return mongoose.connect(uri, {
-    dbName: "qtrobot", // tu peux choisir un autre nom
-  });
+  try {
+    await mongoose.connect(uri, {
+      dbName: "qtrobot",
+    });
+    console.log("✅ Connexion à MongoDB réussie");
+  } catch (err) {
+    console.error("❌ Erreur de connexion MongoDB:", err);
+  }
 }
+

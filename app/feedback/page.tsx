@@ -3,6 +3,7 @@
 import { useGlobalTimer } from "@/app/context/TimerContext";
 import { useEffect, useState } from "react";
 import { useSpeech } from "@/app/hooks/useSpeech";
+import { updateSessionFeedback } from "@/app/utils/sessionUtils";
 
 const expressions = [
   { expression: "happy", label: "J'ai adoré !" },
@@ -19,7 +20,7 @@ export default function FeedbackPage() {
   const { speak } = useSpeech();
 
   useEffect(() => {
-    const storedPrenom = localStorage.getItem("prenom") || "";
+    const storedPrenom = localStorage.getItem("prenom") || "anonyme";
     setPrenom(storedPrenom);
     stopTimer();
 
@@ -34,27 +35,15 @@ export default function FeedbackPage() {
     setSelected(expr);
 
     const niveau = localStorage.getItem("niveau") || "Inconnu";
-    const categorie = localStorage.getItem("categorie") || "Inconnue";
-    const correctAnswers = parseInt(localStorage.getItem("correct") || "0");
-    const incorrectAnswers = parseInt(localStorage.getItem("incorrect") || "0");
-    const difficulte = localStorage.getItem("difficulte") || "";
 
-
-    await fetch("/api/save-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        prenom,
-        niveau,
-        categorie,
-        correctAnswers,
-        
-        incorrectAnswers,
-        duration: minutes * 60 + seconds,
-        expression: expr,
-      }),
+    await updateSessionFeedback({
+      prenom,
+      niveau,
+      expression: expr,
+      duration: minutes * 60 + seconds,
     });
   };
+  
 
   return (
     <div style={{

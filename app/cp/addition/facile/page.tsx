@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useSpeech } from "@/app/hooks/useSpeech";
 import QTRobot from "@/app/components/QTRobot";
-import { saveSessionToDatabase } from "@/app/utils/saveToDatabase";
+import { saveActivityToSession } from "@/app/utils/sessionUtils";
+
 
 export default function AdditionFacilePage() {
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
@@ -14,28 +15,20 @@ export default function AdditionFacilePage() {
 
   const { speak } = useSpeech();
 
- 
   useEffect(() => {
-    localStorage.setItem("categorie", "Addition");
     localStorage.setItem("niveau", "CP");
-    localStorage.setItem("difficulte", "facile");
+    localStorage.setItem("categorie", "Addition");
+    localStorage.setItem("difficulte", "Facile");
   }, []);
+  
+ 
 
   useEffect(() => {
     if (currentQuestion === 20) {
-      const niveau = localStorage.getItem("niveau") || "";
-      const categorie = localStorage.getItem("categorie") || "";
-      const difficulte = localStorage.getItem("difficulte") || "";
-  
-      saveSessionToDatabase({
-        correct: score.correct,
-        incorrect: score.incorrect,
-        niveau,
-        categorie,
-        difficulte,
-      });
+    
     }
   }, [currentQuestion]);
+  
   
   const generateExercise = () => {
     const a = Math.floor(Math.random() * 6);
@@ -56,25 +49,31 @@ export default function AdditionFacilePage() {
       () => setCurrentExpression("neutral")
     );
   }, [exercise]);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const isCorrect = parseInt(userAnswer) === exercise.answer;
-
-    if (isCorrect) {
-      const newCorrect = score.correct + 1;
-      setScore({ ...score, correct: newCorrect });
-      setCurrentExpression("happy");
-      localStorage.setItem("correct", newCorrect.toString());
-    } else {
-      const newIncorrect = score.incorrect + 1;
-      setScore({ ...score, incorrect: newIncorrect });
-      setCurrentExpression("sad");
-      localStorage.setItem("incorrect", newIncorrect.toString());
-    }
-
+  
+    const newScore = {
+      correct: isCorrect ? score.correct + 1 : score.correct,
+      incorrect: !isCorrect ? score.incorrect + 1 : score.incorrect,
+    };
+  
+    setScore(newScore);
+    setCurrentExpression(isCorrect ? "happy" : "sad");
     setShowResult(true);
+  
+    localStorage.setItem("correct", newScore.correct.toString());
+    localStorage.setItem("incorrect", newScore.incorrect.toString());
+  
+    // ✅ Ajout important pour sauvegarder en base
+    saveActivityToSession({
+      correct: isCorrect ? 1 : 0,
+      incorrect: !isCorrect ? 1 : 0,
+    });
   };
+  
+  
+  
 
   const nextQuestion = () => {
     if (currentQuestion < 20) {
@@ -85,6 +84,7 @@ export default function AdditionFacilePage() {
       setShowResult(false);
     }
   };
+  
 
   return (
     <div style={{

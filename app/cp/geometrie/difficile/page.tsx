@@ -1,6 +1,8 @@
 "use client";
 import { useSpeech } from "@/app/hooks/useSpeech";
 import { useEffect } from "react";
+import { saveActivityToSession } from "@/app/utils/sessionUtils";
+
 
 import { useState } from "react";
 import QTRobot from "@/app/components/QTRobot";
@@ -14,6 +16,11 @@ export default function GeometrieDifficilePage() {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "talking">("neutral");
   const { speak } = useSpeech();
+  useEffect(() => {
+    localStorage.setItem("niveau", "CP"); 
+    localStorage.setItem("categorie", "Géométrie");
+    localStorage.setItem("difficulte", "Difficile"); 
+  }, []);
   useEffect(() => {
     speak(
       questions[currentQuestion].question,
@@ -170,15 +177,33 @@ export default function GeometrieDifficilePage() {
     const correct = answer === questions[currentQuestion].answer;
     setIsCorrect(correct);
     setShowResult(true);
-
+  
     if (correct) {
-      setScore(prev => ({ ...prev, correct: prev.correct + 1 }));
+      const newCorrect = score.correct + 1;
+      setScore(prev => ({ ...prev, correct: newCorrect }));
+      localStorage.setItem("correct", newCorrect.toString());
       setCurrentExpression("happy");
+  
+      // ✅ Enregistrer la bonne réponse dans MongoDB
+      saveActivityToSession({
+        correct: 1,
+        incorrect: 0,
+      });
+  
     } else {
-      setScore(prev => ({ ...prev, incorrect: prev.incorrect + 1 }));
+      const newIncorrect = score.incorrect + 1;
+      setScore(prev => ({ ...prev, incorrect: newIncorrect }));
+      localStorage.setItem("incorrect", newIncorrect.toString());
       setCurrentExpression("sad");
+  
+      // ❌ Enregistrer la mauvaise réponse dans MongoDB
+      saveActivityToSession({
+        correct: 0,
+        incorrect: 1,
+      });
     }
-
+  
+    // Passer à la prochaine question après un délai
     setTimeout(() => {
       if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(prev => prev + 1);
@@ -188,6 +213,7 @@ export default function GeometrieDifficilePage() {
       setCurrentExpression("neutral");
     }, 2000);
   };
+  
 
   return (
     <div style={{

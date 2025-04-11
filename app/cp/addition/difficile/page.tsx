@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useSpeech } from "@/app/hooks/useSpeech"; 
 import QTRobot from "@/app/components/QTRobot";
-import { saveSessionToDatabase } from "@/app/utils/saveToDatabase";
+import { saveActivityToSession } from "@/app/utils/sessionUtils";
 
 
 export default function AdditionDifficilePage() {
@@ -11,9 +11,9 @@ export default function AdditionDifficilePage() {
   const [showResult, setShowResult] = useState(false);
 
   const generateExercise = () => {
-    const a = Math.floor(Math.random() * 21); // Nombres de 0 à 20
+    const a = Math.floor(Math.random() * 21); 
     const b = Math.floor(Math.random() * 21);
-    // Ajout d'une aide visuelle pour certaines questions
+    
     const visualHelp = Math.random() > 0.7 ? 
       `\n(Par exemple: ${a} + ${b} = ${a} + ${10} + ${b-10} = ${a+10} + ${b-10} = ${a+b})` : 
       "";
@@ -29,22 +29,27 @@ export default function AdditionDifficilePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (currentQuestion === 20) {
-      const niveau = localStorage.getItem("niveau") || "";
-      const categorie = localStorage.getItem("categorie") || "";
-      const difficulte = localStorage.getItem("difficulte") || "";
-    
-      saveSessionToDatabase({
-        correct: score.correct,
-        incorrect: score.incorrect,
-        niveau,
-        categorie,
-        difficulte,
-      });
-    }
-    
+    const isCorrect = parseInt(userAnswer) === exercise.answer;
+  
+    const newScore = {
+      correct: isCorrect ? score.correct + 1 : score.correct,
+      incorrect: !isCorrect ? score.incorrect + 1 : score.incorrect,
+    };
+  
+    setScore(newScore);
+    setCurrentExpression(isCorrect ? "happy" : "sad");
     setShowResult(true);
+  
+    // ✅ Enregistre cette question dans la session
+    saveActivityToSession({
+      correct: isCorrect ? 1 : 0,
+      incorrect: !isCorrect ? 1 : 0,
+    });
   };
+  
+  
+  
+  
 
   const nextQuestion = () => {
     if (currentQuestion < 20) {
@@ -55,6 +60,8 @@ export default function AdditionDifficilePage() {
       setShowResult(false);
     }
   };
+  
+  
   const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "talking">("neutral");
   const { speak } = useSpeech();
   useEffect(() => {
