@@ -1,5 +1,5 @@
-QT Robot Math Tutor est une application web interactive conçue pour aider les enfants du CP et du CE1 à apprendre les concepts mathématiques fondamentaux de manière ludique. 
-Comment commencer
+QT Robot Math Tutor est une application web interactive conçue pour aider les enfants du CP et du CE1 à apprendre les concepts mathématiques fondamentaux de manière ludique. Comment commencer:
+
     Ouvre l'application dans ton navigateur web avec ce lien: 
     Clique sur "Commencer" pour démarrer l'aventure
     Choisis ton niveau : CP ou CE1
@@ -12,8 +12,7 @@ Comment commencer
     - Facile
     - Moyen
     - Difficile
-
-Changement de niveau
+    Changement de niveau
     Tu peux à tout moment :
     - Revenir au menu principal
     - Changer de niveau de difficulté
@@ -31,7 +30,7 @@ Les fonctionnalités de l'application :
 
     - Aides visuelles à l’apprentissage avec images et illustrations
 
-Caractéristiques
+Caractéristiques: 
     Contenu éducatif
 
         Niveau CP
@@ -77,7 +76,7 @@ Caractéristiques
         Saisie directe pour les calculs
 
 
-Détails techniques
+Détails techniques: 
     Tech Stack
 
         Frontend : Next.js (React) avec TypeScript
