@@ -12,12 +12,14 @@ type Activity = {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    console.log("Reçu par API:", body); 
     await connectToDB();
 
     const { prenom, niveau, activity }: { prenom: string; niveau: string; activity: Activity } = body;
 
     // Cherche une session existante
     let session = await Session.findOne({ prenom, niveau });
+
 
     if (!session) {
       // Crée une session si elle n'existe pas

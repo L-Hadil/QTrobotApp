@@ -4,6 +4,7 @@ import { useState } from "react";
 import QTRobot from "@/app/components/QTRobot";
 import { useEffect } from "react";
 import { useSpeech } from "@/app/hooks/useSpeech";
+import { saveActivityToSession } from "@/app/utils/sessionUtils";
 
 
 export default function GeometrieDifficileCE1() {
@@ -11,6 +12,14 @@ export default function GeometrieDifficileCE1() {
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const { speak } = useSpeech();
+  const [isCorrect, setIsCorrect] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem("niveau", "CE1");
+    localStorage.setItem("categorie", "Géométrie");
+    localStorage.setItem("difficulte", "Difficile");
+  }, []);
+  
   useEffect(() => {
     speak(
       questions[currentQuestion].question,
@@ -87,27 +96,47 @@ export default function GeometrieDifficileCE1() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
 
-  const handleAnswer = (option: string) => {
+  const handleAnswer = async (option: string) => {
     setSelectedOption(option);
     setShowFeedback(true);
-    
-    if (option === questions[currentQuestion].answer) {
-      setScore({ ...score, correct: score.correct + 1 });
+  
+    const isAnswerCorrect = option === questions[currentQuestion].answer;
+    setIsCorrect(isAnswerCorrect);
+  
+    if (isAnswerCorrect) {
+      const newCorrect = score.correct + 1;
+      setScore((prev) => ({ ...prev, correct: newCorrect }));
       setCurrentExpression("happy");
+  
+      await saveActivityToSession({
+        correct: newCorrect,
+        incorrect: score.incorrect,
+      });
     } else {
-      setScore({ ...score, incorrect: score.incorrect + 1 });
+      const newIncorrect = score.incorrect + 1;
+      setScore((prev) => ({ ...prev, incorrect: newIncorrect }));
       setCurrentExpression("sad");
+  
+      await saveActivityToSession({
+        correct: score.correct,
+        incorrect: newIncorrect,
+      });
     }
-
+  
     setTimeout(() => {
       if (currentQuestion < questions.length - 1) {
-        setCurrentQuestion(currentQuestion + 1);
+        setCurrentQuestion((prev) => prev + 1);
         setSelectedOption(null);
         setShowFeedback(false);
         setCurrentExpression("neutral");
+      } else {
+        setCurrentExpression("happy");
       }
     }, 1500);
   };
+  
+  
+  
 
   return (
     <div style={{

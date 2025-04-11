@@ -12,25 +12,24 @@ export const saveActivityToSession = async ({
   const categorie = localStorage.getItem("categorie") || "";
   const difficulte = localStorage.getItem("difficulte") || "";
 
-  try {
-    await fetch("/api/save-activity", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        prenom,
-        niveau,
-        activity: {
-          categorie,
-          difficulte,
-          correctAnswers: correct,
-          incorrectAnswers: incorrect,
-        },
-      }),
-    });
-  } catch (error) {
-    console.error("❌ Erreur lors de l’envoi de l’activité :", error);
-  }
+  console.log("Envoi des données :", { prenom, niveau, categorie, difficulte, correct, incorrect });
+
+  await fetch("/api/save-activity", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      prenom,
+      niveau,
+      activity: {
+        categorie,
+        difficulte,
+        correctAnswers: correct,
+        incorrectAnswers: incorrect,
+      },
+    }),
+  });
 };
+
 
 export const updateSessionFeedback = async ({
   prenom,

@@ -3,13 +3,19 @@ import { useEffect } from "react";
 import { useSpeech } from "@/app/hooks/useSpeech";
 import { useState } from "react";
 import QTRobot from "@/app/components/QTRobot";
+import { saveActivityToSession } from "@/app/utils/sessionUtils";
 
 export default function MultiplicationFacileCE1() {
   const [currentExpression, setCurrentExpression] = useState<"happy" |"talking" |"sad" | "neutral">("neutral");
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const { speak } = useSpeech();
-
+  useEffect(() => {
+    localStorage.setItem("niveau", "CE1");
+    localStorage.setItem("categorie", "Multiplication");
+    localStorage.setItem("difficulte", "Facile");
+  }, []);
+  
   useEffect(() => {
     speak(
       questions[currentQuestion].question,
@@ -43,29 +49,36 @@ export default function MultiplicationFacileCE1() {
   const [userAnswer, setUserAnswer] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (userAnswer === questions[currentQuestion].answer) {
-      setScore({ ...score, correct: score.correct + 1 });
-      setCurrentExpression("happy");
-    } else {
-      setScore({ ...score, incorrect: score.incorrect + 1 });
-      setCurrentExpression("sad");
-    }
-
+    const isCorrect = userAnswer === questions[currentQuestion].answer;
+  
+    setScore((prev) => ({
+      correct: isCorrect ? prev.correct + 1 : prev.correct,
+      incorrect: !isCorrect ? prev.incorrect + 1 : prev.incorrect,
+    }));
+  
+    setCurrentExpression(isCorrect ? "happy" : "sad");
     setShowFeedback(true);
-    
+  
+    //  Sauvegarde dans MongoDB
+    await saveActivityToSession({
+      correct: isCorrect ? 1 : 0,
+      incorrect: !isCorrect ? 1 : 0,
+    });
+  
     setTimeout(() => {
       if (currentQuestion < questions.length - 1) {
-        setCurrentQuestion(currentQuestion + 1);
+        setCurrentQuestion((prev) => prev + 1);
         setUserAnswer("");
         setShowFeedback(false);
         setCurrentExpression("neutral");
+      } else {
+        setCurrentExpression("happy");
       }
     }, 1500);
   };
-
+  
   return (
     <div style={{
       display: "flex",

@@ -4,13 +4,19 @@ import { useState } from "react";
 import QTRobot from "@/app/components/QTRobot";
 import { useEffect } from "react";
 import { useSpeech } from "@/app/hooks/useSpeech";
+import { saveActivityToSession } from "@/app/utils/sessionUtils";
 
 export default function MesuresDifficileCE1() {
   const [currentExpression, setCurrentExpression] = useState<"happy" |"talking" |"sad" | "neutral">("neutral");
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const { speak } = useSpeech();
-
+  useEffect(() => {
+    localStorage.setItem("niveau", "CE1");
+    localStorage.setItem("categorie", "Mesure");
+    localStorage.setItem("difficulte", "Difficile");
+  }, []);
+  
   useEffect(() => {
     speak(
       questions[currentQuestion].question,
@@ -84,27 +90,38 @@ export default function MesuresDifficileCE1() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
 
-  const handleAnswer = (option: string) => {
+  const handleAnswer = async (option: string) => {
     setSelectedOption(option);
     setShowFeedback(true);
-    
-    if (option === questions[currentQuestion].answer) {
-      setScore({ ...score, correct: score.correct + 1 });
-      setCurrentExpression("happy");
-    } else {
-      setScore({ ...score, incorrect: score.incorrect + 1 });
-      setCurrentExpression("sad");
-    }
-
+  
+    const isAnswerCorrect = option === questions[currentQuestion].answer;
+  
+    const updatedScore = {
+      correct: isAnswerCorrect ? score.correct + 1 : score.correct,
+      incorrect: !isAnswerCorrect ? score.incorrect + 1 : score.incorrect,
+    };
+  
+    setScore(updatedScore);
+    setCurrentExpression(isAnswerCorrect ? "happy" : "sad");
+  
+    // Envoi des données à MongoDB via API
+    await saveActivityToSession({
+      correct: isAnswerCorrect ? 1 : 0,
+      incorrect: !isAnswerCorrect ? 1 : 0,
+    });
+  
     setTimeout(() => {
       if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(currentQuestion + 1);
         setSelectedOption(null);
         setShowFeedback(false);
         setCurrentExpression("neutral");
+      } else {
+        setCurrentExpression("happy");
       }
     }, 2000);
   };
+  
 
   return (
     <div style={{

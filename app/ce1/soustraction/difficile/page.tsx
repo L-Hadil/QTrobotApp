@@ -3,6 +3,8 @@ import { useEffect } from "react";
 import { useSpeech } from "@/app/hooks/useSpeech";
 import { useState } from "react";
 import QTRobot from "@/app/components/QTRobot";
+import { saveActivityToSession } from "@/app/utils/sessionUtils";
+
 
 export default function SoustractionDifficileCE1() {
   const [currentExpression, setCurrentExpression] = useState<"happy" |"talking" |"sad" | "neutral">("neutral");
@@ -11,7 +13,12 @@ export default function SoustractionDifficileCE1() {
   const [userAnswer, setUserAnswer] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
   const { speak } = useSpeech();
-
+  useEffect(() => {
+    localStorage.setItem("niveau", "CE1");
+    localStorage.setItem("categorie", "Soustraction");
+    localStorage.setItem("difficulte", "Difficile");
+  }, []);
+  
   useEffect(() => {
     speak(
       questions[currentQuestion].problem,
@@ -82,29 +89,36 @@ export default function SoustractionDifficileCE1() {
     }
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const isCorrect = parseInt(userAnswer) === questions[currentQuestion].answer;
-    
-    if (isCorrect) {
-      setScore({ ...score, correct: score.correct + 1 });
-      setCurrentExpression("happy");
-    } else {
-      setScore({ ...score, incorrect: score.incorrect + 1 });
-      setCurrentExpression("sad");
-    }
-
+  
+    setScore((prev) => ({
+      correct: isCorrect ? prev.correct + 1 : prev.correct,
+      incorrect: !isCorrect ? prev.incorrect + 1 : prev.incorrect,
+    }));
+  
+    setCurrentExpression(isCorrect ? "happy" : "sad");
     setShowFeedback(true);
-    
+  
+    //  Enregistrement MongoDB immédiat
+    await saveActivityToSession({
+      correct: isCorrect ? 1 : 0,
+      incorrect: !isCorrect ? 1 : 0,
+    });
+  
     setTimeout(() => {
       if (currentQuestion < questions.length - 1) {
-        setCurrentQuestion(currentQuestion + 1);
+        setCurrentQuestion((prev) => prev + 1);
         setUserAnswer("");
         setShowFeedback(false);
         setCurrentExpression("neutral");
+      } else {
+        setCurrentExpression("happy");
       }
     }, 1500);
   };
+  
 
   return (
     <div style={{
