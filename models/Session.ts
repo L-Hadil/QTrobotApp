@@ -10,6 +10,7 @@ const ActivitySchema = new mongoose.Schema({
 const SessionSchema = new mongoose.Schema(
   {
     prenom: String,
+    age: Number, 
     niveau: String,
     expression: String,
     duration: Number,

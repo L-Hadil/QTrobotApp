@@ -18,6 +18,8 @@ export default function FeedbackPage() {
   const [selected, setSelected] = useState<string | null>(null);
   const [currentExpression, setCurrentExpression] = useState<"talking" | "neutral">("neutral");
   const { speak } = useSpeech();
+  const storedAge = localStorage.getItem("age") || "0";
+
 
   useEffect(() => {
     const storedPrenom = localStorage.getItem("prenom") || "anonyme";
@@ -33,16 +35,19 @@ export default function FeedbackPage() {
 
   const handleSelect = async (expr: string) => {
     setSelected(expr);
-
+  
     const niveau = localStorage.getItem("niveau") || "Inconnu";
-
+    const age = parseInt(localStorage.getItem("age") || "0"); // ✅ conversion ici
+  
     await updateSessionFeedback({
       prenom,
+      age, // ✅ maintenant c'est bien un nombre
       niveau,
       expression: expr,
       duration: minutes * 60 + seconds,
     });
   };
+  
   
 
   return (
@@ -127,17 +132,45 @@ export default function FeedbackPage() {
       </div>
 
       {selected && (
-        <p style={{
-          fontSize: "1.3rem",
-          color: "#10b981",
-          marginTop: "2rem",
-          backgroundColor: "#e6f5f0",
-          padding: "12px 24px",
-          borderRadius: "10px"
-        }}>
-          Merci pour ton retour {prenom}
-        </p>
-      )}
+  <p style={{
+    fontSize: "1.3rem",
+    color: "#10b981",
+    marginTop: "2rem",
+    backgroundColor: "#e6f5f0",
+    padding: "12px 24px",
+    borderRadius: "10px"
+  }}>
+    Merci pour ton retour {prenom}
+  </p>
+)}
+
+{/* === Ajoute ce bouton ici === */}
+<button
+  onClick={() => {
+    window.location.href = "/saisie-prenom";
+  }}
+  style={{
+    marginTop: "2.5rem",
+    padding: "12px 28px",
+    fontSize: "1.1rem",
+    backgroundColor: "#2e7d32",
+    color: "white",
+    border: "none",
+    borderRadius: "10px",
+    cursor: "pointer",
+    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+    transition: "transform 0.2s"
+  }}
+  onMouseOver={(e) => {
+    (e.currentTarget.style.transform = "scale(1.05)");
+  }}
+  onMouseOut={(e) => {
+    (e.currentTarget.style.transform = "scale(1)");
+  }}
+>
+  Recommencer
+</button>
+
     </div>
   );
 }

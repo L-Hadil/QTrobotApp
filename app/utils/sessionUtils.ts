@@ -33,11 +33,13 @@ export const saveActivityToSession = async ({
 
 export const updateSessionFeedback = async ({
   prenom,
+  age,
   niveau,
   expression,
   duration,
 }: {
   prenom: string;
+  age: number; 
   niveau: string;
   expression: string;
   duration: number;
@@ -45,7 +47,8 @@ export const updateSessionFeedback = async ({
   await fetch("/api/update-session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prenom, niveau, expression, duration }),
+    body: JSON.stringify({ prenom, age, niveau, expression, duration }),
   });
 };
+
 

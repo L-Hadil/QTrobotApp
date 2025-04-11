@@ -5,19 +5,20 @@ import { useState } from "react";
 
 export default function SaisiePrenom() {
   const [prenom, setPrenom] = useState("");
+  const [age, setAge] = useState("");
   const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (prenom.trim()) {
+    if (prenom.trim() && age.trim()) {
       localStorage.setItem("prenom", prenom.trim());
+      localStorage.setItem("age", age.trim());
       router.push("/selection-niveau");
     }
   };
 
   return (
     <div style={{
-      
       backgroundSize: "cover",
       backgroundPosition: "center",
       display: "flex",
@@ -43,7 +44,7 @@ export default function SaisiePrenom() {
           color: "#2e7d32",
           fontFamily: "'Comic Sans MS', cursive"
         }}>
-          Quel est ton prénom ?
+          Comment tu t’appelles ?
         </h1>
         <form onSubmit={handleSubmit}>
           <input
@@ -63,6 +64,28 @@ export default function SaisiePrenom() {
               color: "black",
               boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
             }}
+            required
+          />
+          <input
+            type="number"
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
+            placeholder="Ton âge"
+            style={{
+              padding: "12px",
+              fontSize: "1.2rem",
+              borderRadius: "10px",
+              border: "2px solid #66bb6a",
+              marginBottom: "1.5rem",
+              width: "100%",
+              textAlign: "center",
+              outline: "none",
+              color: "black",
+              boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+            }}
+            min={3}
+            max={12}
+            required
           />
           <br />
           <button
