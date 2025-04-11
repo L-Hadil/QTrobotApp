@@ -2,6 +2,9 @@
 import { useEffect, useState } from "react";
 import { useSpeech } from "@/app/hooks/useSpeech";
 import QTRobot from "@/app/components/QTRobot";
+import { saveActivityToSession } from "@/app/utils/sessionUtils";
+
+
 export default function SoustractionFacile() {
 
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
@@ -12,6 +15,12 @@ export default function SoustractionFacile() {
 
   const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "talking">("neutral");
   const { speak } = useSpeech();
+  useEffect(() => {
+    localStorage.setItem("niveau", "CP");
+    localStorage.setItem("categorie", "Soustraction");
+    localStorage.setItem("difficulte", "Facile");
+  }, []);
+  
   useEffect(() => {
     speak(
       exercises[currentQuestion].question,
@@ -42,22 +51,28 @@ export default function SoustractionFacile() {
     { question: "7 - 0 = ?", answer: 7 },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const correctAnswer = exercises[currentQuestion].answer;
     const isAnswerCorrect = parseInt(userAnswer) === correctAnswer;
-
+  
     setIsCorrect(isAnswerCorrect);
     setShowFeedback(true);
-
-    if (isAnswerCorrect) {
-      setScore({ ...score, correct: score.correct + 1 });
-      setCurrentExpression("happy");
-    } else {
-      setScore({ ...score, incorrect: score.incorrect + 1 });
-      setCurrentExpression("sad");
-    }
-
+  
+    const newScore = {
+      correct: isAnswerCorrect ? score.correct + 1 : score.correct,
+      incorrect: !isAnswerCorrect ? score.incorrect + 1 : score.incorrect,
+    };
+  
+    setScore(newScore);
+    setCurrentExpression(isAnswerCorrect ? "happy" : "sad");
+  
+    // ✅ Enregistrement dans la session MongoDB
+    await saveActivityToSession({
+      correct: isAnswerCorrect ? 1 : 0,
+      incorrect: !isAnswerCorrect ? 1 : 0,
+    });
+  
     setTimeout(() => {
       setShowFeedback(false);
       setUserAnswer("");
@@ -65,11 +80,11 @@ export default function SoustractionFacile() {
         setCurrentQuestion(currentQuestion + 1);
         setCurrentExpression("neutral");
       } else {
-        // Fin des exercices
         setCurrentExpression("happy");
       }
     }, 1500);
   };
+  
 
   return (
     <div style={{

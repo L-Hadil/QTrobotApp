@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSpeech } from "@/app/hooks/useSpeech";
 import QTRobot from "@/app/components/QTRobot";
+import { saveActivityToSession } from "@/app/utils/sessionUtils";
 
 
 export default function MesuresDifficileCP() {
@@ -11,6 +12,12 @@ export default function MesuresDifficileCP() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "talking">("neutral");
   const { speak } = useSpeech();
+  useEffect(() => {
+    localStorage.setItem("niveau", "CP"); 
+    localStorage.setItem("categorie", "Mesure");
+    localStorage.setItem("difficulte", "Difficile"); 
+  }, []);
+  
   useEffect(() => {
     speak(
       questions[currentQuestion].question,
@@ -127,15 +134,32 @@ export default function MesuresDifficileCP() {
   const handleAnswer = (option: string) => {
     setSelectedOption(option);
     setShowFeedback(true);
-    
-    if (option === questions[currentQuestion].answer) {
-      setScore({ ...score, correct: score.correct + 1 });
+  
+    const isCorrect = option === questions[currentQuestion].answer;
+  
+    if (isCorrect) {
+      const newCorrect = score.correct + 1;
+      setScore({ ...score, correct: newCorrect });
       setCurrentExpression("happy");
+  
+      // ✅ Envoie une bonne réponse vers MongoDB
+      saveActivityToSession({
+        correct: 1,
+        incorrect: 0,
+      });
     } else {
-      setScore({ ...score, incorrect: score.incorrect + 1 });
+      const newIncorrect = score.incorrect + 1;
+      setScore({ ...score, incorrect: newIncorrect });
       setCurrentExpression("sad");
+  
+      // ❌ Envoie une mauvaise réponse vers MongoDB
+      saveActivityToSession({
+        correct: 0,
+        incorrect: 1,
+      });
     }
-
+  
+    // Attend un peu avant de passer à la prochaine question
     setTimeout(() => {
       if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(currentQuestion + 1);
@@ -145,6 +169,7 @@ export default function MesuresDifficileCP() {
       }
     }, 1500);
   };
+  
 
   return (
     <div style={{

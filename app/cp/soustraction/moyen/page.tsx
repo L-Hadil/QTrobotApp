@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useSpeech } from "@/app/hooks/useSpeech";
 import QTRobot from "@/app/components/QTRobot";
+import { saveActivityToSession } from "@/app/utils/sessionUtils";
 
 export default function SoustractionMoyen() {
 
@@ -13,6 +14,12 @@ export default function SoustractionMoyen() {
 
   const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "talking">("neutral");
   const { speak } = useSpeech();
+  useEffect(() => {
+    localStorage.setItem("niveau", "CP");
+    localStorage.setItem("categorie", "Soustraction");
+    localStorage.setItem("difficulte", "Moyenne");
+  }, []);
+  
   useEffect(() => {
     speak(
       exercises[currentQuestion].question,
@@ -43,22 +50,28 @@ export default function SoustractionMoyen() {
     { question: "15 - 6 = ?", answer: 9 },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const correctAnswer = exercises[currentQuestion].answer;
     const isAnswerCorrect = parseInt(userAnswer) === correctAnswer;
-
+  
     setIsCorrect(isAnswerCorrect);
     setShowFeedback(true);
-
-    if (isAnswerCorrect) {
-      setScore({ ...score, correct: score.correct + 1 });
-      setCurrentExpression("happy");
-    } else {
-      setScore({ ...score, incorrect: score.incorrect + 1 });
-      setCurrentExpression("sad");
-    }
-
+  
+    const newScore = {
+      correct: isAnswerCorrect ? score.correct + 1 : score.correct,
+      incorrect: !isAnswerCorrect ? score.incorrect + 1 : score.incorrect,
+    };
+  
+    setScore(newScore);
+    setCurrentExpression(isAnswerCorrect ? "happy" : "sad");
+  
+    // ✅ Enregistrement dans MongoDB (regroupé par catégorie + difficulté)
+    await saveActivityToSession({
+      correct: isAnswerCorrect ? 1 : 0,
+      incorrect: !isAnswerCorrect ? 1 : 0,
+    });
+  
     setTimeout(() => {
       setShowFeedback(false);
       setUserAnswer("");
@@ -70,6 +83,7 @@ export default function SoustractionMoyen() {
       }
     }, 1500);
   };
+  
 
   return (
     <div style={{

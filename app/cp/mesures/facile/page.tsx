@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSpeech } from "@/app/hooks/useSpeech";
 import QTRobot from "@/app/components/QTRobot";
+import { saveActivityToSession } from "@/app/utils/sessionUtils";
 
 
 export default function MesuresFacileCP() {
@@ -11,6 +12,12 @@ export default function MesuresFacileCP() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "talking">("neutral");
   const { speak } = useSpeech();
+  useEffect(() => {
+    localStorage.setItem("niveau", "CP");
+    localStorage.setItem("categorie", "Mesure");
+    localStorage.setItem("difficulte", "Facile");
+  }, []);
+  
   useEffect(() => {
     speak(
       questions[currentQuestion].question,
@@ -124,27 +131,36 @@ export default function MesuresFacileCP() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
 
-  const handleAnswer = (option: string) => {
+  const handleAnswer = async (option: string) => {
     setSelectedOption(option);
     setShowFeedback(true);
-    
-    if (option === questions[currentQuestion].answer) {
-      setScore({ ...score, correct: score.correct + 1 });
-      setCurrentExpression("happy");
-    } else {
-      setScore({ ...score, incorrect: score.incorrect + 1 });
-      setCurrentExpression("sad");
-    }
-
+  
+    const correct = option === questions[currentQuestion].answer;
+  
+    const updatedScore = {
+      correct: correct ? score.correct + 1 : score.correct,
+      incorrect: !correct ? score.incorrect + 1 : score.incorrect,
+    };
+  
+    setScore(updatedScore);
+    setCurrentExpression(correct ? "happy" : "sad");
+  
+    // ✅ Sauvegarde la progression
+    await saveActivityToSession({
+      correct: correct ? 1 : 0,
+      incorrect: !correct ? 1 : 0,
+    });
+  
     setTimeout(() => {
       if (currentQuestion < questions.length - 1) {
-        setCurrentQuestion(currentQuestion + 1);
+        setCurrentQuestion((prev) => prev + 1);
         setSelectedOption(null);
         setShowFeedback(false);
         setCurrentExpression("neutral");
       }
     }, 1500);
   };
+  
 
   return (
     <div style={{

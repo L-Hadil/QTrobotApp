@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSpeech } from "@/app/hooks/useSpeech";
 import QTRobot from "@/app/components/QTRobot";
+import { saveActivityToSession } from "@/app/utils/sessionUtils";
 
 export default function MesuresMoyenCP() {
   
@@ -10,6 +11,12 @@ export default function MesuresMoyenCP() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "talking">("neutral");
   const { speak } = useSpeech();
+  useEffect(() => {
+    localStorage.setItem("niveau", "CP");
+    localStorage.setItem("categorie", "Mesure");
+    localStorage.setItem("difficulte", "Moyen");
+  }, []);
+  
   useEffect(() => {
     speak(
       questions[currentQuestion].question,
@@ -123,18 +130,25 @@ export default function MesuresMoyenCP() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
 
-  const handleAnswer = (option: string) => {
+  const handleAnswer = async (option: string) => {
     setSelectedOption(option);
     setShowFeedback(true);
-    
-    if (option === questions[currentQuestion].answer) {
-      setScore({ ...score, correct: score.correct + 1 });
-      setCurrentExpression("happy");
-    } else {
-      setScore({ ...score, incorrect: score.incorrect + 1 });
-      setCurrentExpression("sad");
-    }
-
+  
+    const isCorrect = option === questions[currentQuestion].answer;
+    const updatedScore = {
+      correct: isCorrect ? score.correct + 1 : score.correct,
+      incorrect: !isCorrect ? score.incorrect + 1 : score.incorrect,
+    };
+  
+    setScore(updatedScore);
+    setCurrentExpression(isCorrect ? "happy" : "sad");
+  
+    // ✅ Sauvegarde chaque question dans MongoDB
+    await saveActivityToSession({
+      correct: isCorrect ? 1 : 0,
+      incorrect: !isCorrect ? 1 : 0,
+    });
+  
     setTimeout(() => {
       if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(currentQuestion + 1);
@@ -144,6 +158,7 @@ export default function MesuresMoyenCP() {
       }
     }, 1500);
   };
+  
 
   return (
     <div style={{
