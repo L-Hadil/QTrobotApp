@@ -1,26 +1,23 @@
 "use client";
-
+import { useEffect, useState } from "react";
+import { useSpeech } from "@/app/hooks/useSpeech";
+import QTRobot from "@/app/components/QTRobot";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useState, useEffect } from "react";
-import dynamic from "next/dynamic";
-
-// Dynamically import QTRobot with no SSR
-const QTRobot = dynamic(() => import("@/app/components/QTRobot"), { ssr: false });
+import { Suspense } from "react";
 
 function RecapContent() {
   const searchParams = useSearchParams();
   const name = searchParams.get("name") || "Anonyme";
   const age = searchParams.get("age") || "Inconnu";
-  const correct = searchParams.get("correct");
-  const total = searchParams.get("total");
-  const time = searchParams.get("time");
-
-  const [currentExpression, setCurrentExpression] = useState<
-    "afraid" | "angry" | "confused" | "cry" | "disgusted" | 
-    "happy" | "kiss" | "neutral" | "sad" | "scream" | 
-    "talking" | "yawn"
-  >("happy");
+  const correct = searchParams.get("correct") || "0";
+  const total = searchParams.get("total") || "0";
+  const time = searchParams.get("time") || "0";
+  const { speak } = useSpeech();
+  
+  // QT Robot expression state
+  const [currentExpression, setCurrentExpression] = useState<"happy" | "sad" | "neutral" | "talking">("neutral");
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -28,32 +25,52 @@ function RecapContent() {
     return `${mins}m ${secs < 10 ? '0' : ''}${secs}s`;
   };
 
+  // Calculate performance percentage
+  const percentage = Math.round((Number(correct) / Number(total)) * 100);
+  
+  // Set QT Robot expression based on performance
   useEffect(() => {
-    // Show kiss expression when component mounts
-    setCurrentExpression("kiss");
-    
-    // After 3 seconds, return to happy expression
-    const timer = setTimeout(() => {
+    if (percentage >= 70) {
       setCurrentExpression("happy");
-    }, 3000);
-
-    return () => clearTimeout(timer);
+      speak(
+        `Félicitations ${name}! Tu as réussi ${correct} sur ${total} questions.`,
+        () => setCurrentExpression("talking"),
+        () => setCurrentExpression("happy")
+      );
+    } else if (percentage >= 40) {
+      setCurrentExpression("neutral");
+      speak(
+        `Bien joué ${name}! Tu as obtenu ${correct} bonnes réponses sur ${total}.`,
+        () => setCurrentExpression("talking"),
+        () => setCurrentExpression("neutral")
+      );
+    } else {
+      setCurrentExpression("sad");
+      speak(
+        `Courage ${name}! Tu as fait ${correct} bonnes réponses sur ${total}. Tu feras mieux la prochaine fois!`,
+        () => setCurrentExpression("talking"),
+        () => setCurrentExpression("sad")
+      );
+    }
   }, []);
 
   return (
     <div style={{
       minHeight: "100vh",
       width: "100%",
-      background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
+      backgroundImage: "url('/images/background-image.jpg')",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundAttachment: "fixed",
       padding: "2rem 0",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
     }}>
-      {/* QT Robot Container */}
+      {/* QT Robot Display */}
       <div style={{ 
-        marginBottom: "1rem",
-        transform: "scale(0.8)" // Adjust size if needed
+        margin: "1rem 0",
+        transform: "scale(0.8)" 
       }}>
         <QTRobot expression={currentExpression} />
       </div>
@@ -62,7 +79,7 @@ function RecapContent() {
         maxWidth: "600px",
         margin: "0 auto",
         padding: "2rem",
-        backgroundColor: "#f8f9fa",
+        backgroundColor: "rgba(248, 249, 250, 0.9)",
         borderRadius: "10px",
         textAlign: "center",
         fontFamily: "'Comic Sans MS', cursive, sans-serif",
@@ -110,32 +127,46 @@ function RecapContent() {
           <div style={{ 
             backgroundColor: "#f0fdf4",
             padding: "1rem",
+            borderRadius: "8px",
+            marginBottom: "1rem"
+          }}>
+            <h3 style={{ color: "#6b7280", marginBottom: "0.5rem" }}>Performance</h3>
+            <div style={{
+              height: "20px",
+              backgroundColor: "#e5e7eb",
+              borderRadius: "10px",
+              marginBottom: "0.5rem",
+              overflow: "hidden"
+            }}>
+              <div 
+                style={{
+                  height: "100%",
+                  width: `${percentage}%`,
+                  backgroundColor: percentage >= 70 ? "#4caf50" : 
+                                   percentage >= 40 ? "#f59e0b" : "#ef4444",
+                  transition: "width 1s ease-in-out"
+                }}
+              />
+            </div>
+            <p style={{ fontSize: "1.2rem", color: "#4caf50" }}>
+              {percentage >= 70 ? "Excellent!" : 
+               percentage >= 40 ? "Pas mal!" : "Continue à t'entraîner!"}
+            </p>
+          </div>
+
+          <div style={{ 
+            backgroundColor: "#f0fdf4",
+            padding: "1rem",
             borderRadius: "8px"
           }}>
             <h3 style={{ color: "#6b7280", marginBottom: "0.5rem" }}>Niveau</h3>
-            <p style={{ fontSize: "1.2rem",
-              color: "#4caf50"
-            }}>CE1 - Multiplication Difficile</p>
+            <p style={{ fontSize: "1.2rem", color: "#4caf50" }}>
+              CE1 - Multiplication Difficile
+            </p>
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
-          <Link 
-            href="/selection-niveau"
-            style={{
-              display: "inline-block",
-              padding: "0.75rem 1.5rem",
-              backgroundColor: "#3b82f6",
-              color: "white",
-              borderRadius: "30px",
-              textDecoration: "none",
-              fontSize: "1.1rem",
-              transition: "all 0.3s",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-            }}
-          >
-            Nouveau jeu
-          </Link>
+        <div style={{ display: "flex", justifyContent: "center" }}>
           <Link 
             href="/" 
             style={{
@@ -166,7 +197,8 @@ export default function RecapPage() {
       alignItems: "center",
       height: "100vh",
       fontFamily: "'Comic Sans MS', cursive, sans-serif",
-      background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
+      backgroundImage: "url('/images/background-image.jpg')",
+      backgroundSize: "cover",
     }}>Chargement des résultats...</div>}>
       <RecapContent />
     </Suspense>
