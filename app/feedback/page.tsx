@@ -14,40 +14,37 @@ const expressions = [
 
 export default function FeedbackPage() {
   const { minutes, seconds, stopTimer } = useGlobalTimer();
-  const [prenom, setPrenom] = useState("");
+  const [prenom, setPrenom] = useState("anonyme");
   const [selected, setSelected] = useState<string | null>(null);
   const [currentExpression, setCurrentExpression] = useState<"talking" | "neutral">("neutral");
   const { speak } = useSpeech();
-  const storedAge = localStorage.getItem("age") || "0";
-
+  const [storedAge, setStoredAge] = useState("0");
+  const [niveau, setNiveau] = useState("Inconnu");
 
   useEffect(() => {
-    const storedPrenom = localStorage.getItem("prenom") || "anonyme";
-    setPrenom(storedPrenom);
+    setPrenom(localStorage.getItem("prenom") || "anonyme");
+    setStoredAge(localStorage.getItem("age") || "0");
+    setNiveau(localStorage.getItem("niveau") || "Inconnu");
     stopTimer();
 
     speak(
-      `Merci ${storedPrenom} d’avoir utilisé QT Robot. Tu as passé ${minutes} minutes et ${seconds} secondes avec nous. Dis-nous ce que tu as pensé de cette aventure en choisissant une des expressions ci-dessous.`,
+      `Merci ${prenom} d'avoir utilisé QT Robot. Tu as passé ${minutes} minutes et ${seconds} secondes avec nous. Dis-nous ce que tu as pensé de cette aventure en choisissant une des expressions ci-dessous.`,
       () => setCurrentExpression("talking"),
       () => setCurrentExpression("neutral")
     );
-  }, []);
+  }, [minutes, seconds, prenom, stopTimer, speak]);
 
   const handleSelect = async (expr: string) => {
     setSelected(expr);
   
-    const niveau = localStorage.getItem("niveau") || "Inconnu";
-    const age = parseInt(localStorage.getItem("age") || "0"); // ✅ conversion ici
-  
     await updateSessionFeedback({
       prenom,
-      age, // ✅ maintenant c'est bien un nombre
+      age: parseInt(storedAge),
       niveau,
       expression: expr,
       duration: minutes * 60 + seconds,
     });
   };
-  
   
 
   return (
