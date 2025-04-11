@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function RecapPage() {
+function RecapContent() {
   const searchParams = useSearchParams();
   const name = searchParams.get("name") || "Anonyme";
   const age = searchParams.get("age") || "Inconnu";
@@ -96,5 +97,19 @@ export default function RecapPage() {
         Retour à l'accueil
       </Link>
     </div>
+  );
+}
+
+export default function RecapPage() {
+  return (
+    <Suspense fallback={<div style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100vh",
+      fontFamily: "'Comic Sans MS', cursive, sans-serif"
+    }}>Chargement des résultats...</div>}>
+      <RecapContent />
+    </Suspense>
   );
 }
