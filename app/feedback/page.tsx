@@ -27,27 +27,27 @@ export default function FeedbackPage() {
     stopTimer();
 
     speak(
-      `Merci ${storedPrenom} d’avoir utilisé QT Robot. Tu as passé ${minutes} minutes et ${seconds} secondes avec nous. Dis-nous ce que tu as pensé de cette aventure en choisissant une des expressions ci-dessous.`,
+      `Merci ${storedPrenom} d’avoir utilisé cutie Robot. Tu as passé ${minutes} minutes et ${seconds} secondes avec nous. Dis-nous ce que tu as pensé de cette aventure en choisissant une des expressions ci-dessous.`,
       () => setCurrentExpression("talking"),
       () => setCurrentExpression("neutral")
     );
   }, []);
 
-  const handleSelect = async (expr: string) => {
-    setSelected(expr);
-  
-    const niveau = localStorage.getItem("niveau") || "Inconnu";
-    const age = parseInt(localStorage.getItem("age") || "0"); // ✅ conversion ici
-  
-    await updateSessionFeedback({
-      prenom,
-      age, // ✅ maintenant c'est bien un nombre
-      niveau,
-      expression: expr,
-      duration: minutes * 60 + seconds,
-    });
-  };
-  
+ const handleSelect = async (expr: string) => {
+  setSelected(expr);
+
+  const niveau = localStorage.getItem("niveau") || "Inconnu";
+  const age = parseInt(localStorage.getItem("age") || "0"); 
+
+  await updateSessionFeedback({
+    prenom,
+    age, 
+    niveau,
+    expression: expr,
+    duration: minutes * 60 + seconds,
+  });
+};
+
   
 
   return (

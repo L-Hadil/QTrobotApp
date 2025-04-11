@@ -21,7 +21,7 @@ export default function About() {
 }}>
   {/* Robot QT */}
   <div style={{ marginBottom: "2rem" }}>
-    <QTRobot expression="happy" />
+    <QTRobot expression="kiss" />
   </div>
 
   {/* Boîte de contenu avec fond arrondi */}

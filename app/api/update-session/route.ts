@@ -5,7 +5,7 @@ import Session from "@/models/Session";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    console.log("✅ Reçu pour update-session:", body);
+    console.log("Reçu pour update-session:", body);
 
     await connectToDB();
 
