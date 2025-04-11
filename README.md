@@ -1,88 +1,95 @@
-QT Robot Math Tutor est une application web interactive conçue pour aider les enfants du CP et du CE1 à apprendre les concepts mathématiques fondamentaux de manière ludique. Comment commencer:
+# QT Robot Math Tutor
 
-    Ouvre l'application dans ton navigateur web avec ce lien: 
-    Clique sur "Commencer" pour démarrer l'aventure
-    Choisis ton niveau : CP ou CE1
-    Sélectionne une matière :
-    - Additions
-    - Soustractions
-    - Mesures
-    - Géométrie
-    Choisis un niveau de difficulté :
-    - Facile
-    - Moyen
-    - Difficile
-    Changement de niveau
-    Tu peux à tout moment :
-    - Revenir au menu principal
-    - Changer de niveau de difficulté
-    - Changer de matière
+## Description
+QT Robot Math Tutor est une application web interactive conçue pour aider les enfants du CP et du CE1 à apprendre les concepts mathématiques fondamentaux de manière ludique avec leur compagnon robot QT.
 
-Les fonctionnalités de l'application :
+## Fonctionnalités principales
 
-    - Exercices interactifs d'addition, de soustraction, de mesures et de géométrie
+### Système d'apprentissage interactif
+- Exercices interactifs d'addition, de soustraction, de mesures et de géométrie
+- Trois niveaux de difficulté (Facile, Moyen, Difficile)
+- Suivi des progrès avec compteur de bonnes/mauvaises réponses
+- Feedback immédiat après chaque réponse
 
-    - Niveaux de difficulté (Facile, Moyen, Difficile)
+### Personnalisation
+- **Enregistrement du profil** : 
+  - Saisie du nom et de l'âge de l'enfant au démarrage
+  - Adaptation du contenu en fonction du niveau scolaire (CP ou CE1)
+- **Timer de session** :
+  - Chronomètre activé dès la sélection du niveau (CP/CE1)
+  - Bouton "Terminer la session" disponible à tout moment
 
-    - Retour émotionnel de QT Robot avec 12 expressions différentes
+### Système de feedback
+- Page de feedback à la fin de chaque session
+- Retour à l'accueil après soumission du feedback
 
-    - Suivi des progrès de l'enfant
+### Compagnon robot QT
+- **Text-to-Speech** : Le robot parle pour guider l'enfant
+- **12 expressions émotionnelles** :
+  - Heureux, triste, confus, en colère
+  - Peur, parler, bâiller, embrasser
+  - Cri, neutre, dégoûté, pleurer
+- Interactions adaptées :
+  - Encouragements pour les bonnes réponses
+  - Conseils en cas d'erreur
+  - Feedback émotionnel immédiat
 
-    - Aides visuelles à l’apprentissage avec images et illustrations
+## Contenu éducatif
 
-Caractéristiques: 
-    Contenu éducatif
+### Niveau CP
+- Addition de base (jusqu'à 10)
+- Soustractions simples
+- Comparaisons de tailles et longueurs
+- Reconnaissance des formes géométriques de base
+- Mesures simples (longueur, poids, contenance)
 
-        Niveau CP
+### Niveau CE1
+- Additions avec nombres à deux chiffres
+- Soustractions avec retenues
+- Problèmes mathématiques simples
+- Concepts de géométrie avancés
+- Mesures et conversions simples
 
-            Addition de base (jusqu'à 10)
+## Comment utiliser l'application
 
-            Soustractions simples
+1. **Démarrage** :
+   - Accédez à l'application via ce lien : 
+   - Clique sur "Commencer"
+   - Saisis ton nom et ton âge
+   - Le robot QT te souhaite la bienvenue (text-to-speech)
 
-            Comparer les tailles et les longueurs
+2. **Sélection du niveau** :
+   - Choisis entre CP ou CE1
+   - Un timer démarre automatiquement
 
-            Reconnaître les formes de base
+3. **Choix des exercices** :
+   - Sélectionne une matière :
+     - Additions
+     - Soustractions
+     - Mesures
+     - Géométrie
+   - Choisis un niveau de difficulté :
+     - Facile
+     - Moyen
+     - Difficile
 
-        Niveau CE1
+4. **Pendant la session** :
+   - Le robot guide vocalement à travers les exercices
+   - Tu peux à tout moment :
+     - Cliquer sur "Terminer la session"
+     - Revenir au menu principal
 
-            Addition avec des nombres plus grands
+5. **Fin de session** :
+   - Page de feedback pour donner ton avis
+   - Bouton pour retourner à l'accueil
 
-            Soustractions avec retenu
+## Détails techniques
 
-            Comparaisons de mesures
-
-            Concepts de géométrie avancés
-
-    Compagnon robot QT
-
-        - 12 expressions émotionnelles différentes :
-
-            Heureux, triste, confus, en colère
-
-            Peur, Parler, Bâiller
-
-            Et bien plus encore !
-
-        - Fournit un retour immédiat sur les réponses
-
-        - Offre des encouragements et des conseils
-
-    Éléments interactifs
-
-        Exercices visuels avec images
-
-        Questions à choix multiples
-
-        Saisie directe pour les calculs
-
-
-Détails techniques: 
-    Tech Stack
-
-        Frontend : Next.js (React) avec TypeScript
-
-        Style : modules CSS
-
-        Animation : expressions basées sur GIF
-
-        Déploiement : Vercel
+### Stack technique
+- **Frontend** : Next.js (React) avec TypeScript
+- **Style** : CSS Modules
+- **Interactivité** :
+  - API Web Speech pour le text-to-speech
+  - Animations GIF pour les expressions du robot
+- **Suivi du temps** : Timer avec API Web
+- **Déploiement** : Vercel
