@@ -1,18 +1,27 @@
-"use client";
-
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function SaisiePrenom() {
   const [prenom, setPrenom] = useState("");
   const [age, setAge] = useState("");
   const router = useRouter();
 
+  useEffect(() => {
+    // Initialize time tracking when the component mounts
+    const now = new Date().toISOString();
+    if (!localStorage.getItem("firstVisit")) {
+      localStorage.setItem("firstVisit", now);
+    }
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (prenom.trim() && age.trim()) {
+      // Save name and age
       localStorage.setItem("prenom", prenom.trim());
       localStorage.setItem("age", age.trim());
+      
+      // Redirect to next page
       router.push("/selection-niveau");
     }
   };
@@ -108,3 +117,4 @@ export default function SaisiePrenom() {
       </div>
     </div>
   )
+}
