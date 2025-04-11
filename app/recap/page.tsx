@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+
+// Dynamically import QTRobot with no SSR
+const QTRobot = dynamic(() => import("@/app/components/QTRobot"), { ssr: false });
 
 function RecapContent() {
   const searchParams = useSearchParams();
@@ -12,11 +16,29 @@ function RecapContent() {
   const total = searchParams.get("total");
   const time = searchParams.get("time");
 
+  const [currentExpression, setCurrentExpression] = useState<
+    "afraid" | "angry" | "confused" | "cry" | "disgusted" | 
+    "happy" | "kiss" | "neutral" | "sad" | "scream" | 
+    "talking" | "yawn"
+  >("happy");
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}m ${secs < 10 ? '0' : ''}${secs}s`;
   };
+
+  useEffect(() => {
+    // Show kiss expression when component mounts
+    setCurrentExpression("kiss");
+    
+    // After 3 seconds, return to happy expression
+    const timer = setTimeout(() => {
+      setCurrentExpression("happy");
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div style={{
@@ -24,7 +46,18 @@ function RecapContent() {
       width: "100%",
       background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
       padding: "2rem 0",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
     }}>
+      {/* QT Robot Container */}
+      <div style={{ 
+        marginBottom: "1rem",
+        transform: "scale(0.8)" // Adjust size if needed
+      }}>
+        <QTRobot expression={currentExpression} />
+      </div>
+
       <div style={{
         maxWidth: "600px",
         margin: "0 auto",

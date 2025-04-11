@@ -1,174 +1,57 @@
 "use client";
 
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { Suspense, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import { useState } from "react";
+import { FaPlus, FaTimes, FaDivide } from "react-icons/fa";
 
-// Dynamically import QTRobot with no SSR
+// Charger QTRobot uniquement côté client
 const QTRobot = dynamic(() => import("@/app/components/QTRobot"), { ssr: false });
 
-function RecapContent() {
-  const searchParams = useSearchParams();
-  const name = searchParams.get("name") || "Anonyme";
-  const age = searchParams.get("age") || "Inconnu";
-  const correct = searchParams.get("correct");
-  const total = searchParams.get("total");
-  const time = searchParams.get("time");
-
+export default function Home() {
   const [currentExpression, setCurrentExpression] = useState<
-    "afraid" | "angry" | "confused" | "cry" | "disgusted" | 
-    "happy" | "kiss" | "neutral" | "sad" | "scream" | 
-    "talking" | "yawn"
-  >("happy");
+  "afraid" | "angry" | "confused" | "cry" | "disgusted" | 
+  "happy" | "kiss" | "neutral" | "sad" | "scream" | 
+  "talking" | "yawn"
+>("neutral");
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}m ${secs < 10 ? '0' : ''}${secs}s`;
-  };
-
-  useEffect(() => {
-    // Show kiss expression when component mounts
-    setCurrentExpression("kiss");
-    
-    // After 3 seconds, return to happy expression
-    const timer = setTimeout(() => {
-      setCurrentExpression("happy");
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   return (
     <div style={{
-      minHeight: "100vh",
-      width: "100%",
-      background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
-      padding: "2rem 0",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-    }}>
-      {/* QT Robot Container */}
-      <div style={{ 
-        marginBottom: "1rem",
-        transform: "scale(0.8)" // Adjust size if needed
-      }}>
-        <QTRobot expression={currentExpression} />
-      </div>
-
-      <div style={{
-        maxWidth: "600px",
-        margin: "0 auto",
-        padding: "2rem",
-        backgroundColor: "#f8f9fa",
-        borderRadius: "10px",
-        textAlign: "center",
-        fontFamily: "'Comic Sans MS', cursive, sans-serif",
-        boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
-      }}>
-        <h1 style={{ color: "#4caf50", marginBottom: "1.5rem" }}>
-          Résultats de {name} ({age} ans)
-        </h1>
-
-        <div style={{
-          backgroundColor: "white",
-          padding: "1.5rem",
-          borderRadius: "10px",
-          marginBottom: "2rem",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-        }}>
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "1rem",
-            marginBottom: "1.5rem"
-          }}>
-            <div>
-              <h3 style={{ color: "#6b7280", marginBottom: "0.5rem" }}>Score</h3>
-              <p style={{ 
-                fontSize: "2rem", 
-                fontWeight: "bold",
-                color: "#4caf50"
-              }}>
-                {correct}/{total}
-              </p>
-            </div>
-            <div>
-              <h3 style={{ color: "#6b7280", marginBottom: "0.5rem" }}>Temps</h3>
-              <p style={{ 
-                fontSize: "2rem",
-                fontWeight: "bold",
-                color: "#F01f50"
-              }}>
-                {formatTime(Number(time))}
-              </p>
-            </div>
-          </div>
-
-          <div style={{ 
-            backgroundColor: "#f0fdf4",
-            padding: "1rem",
-            borderRadius: "8px"
-          }}>
-            <h3 style={{ color: "#6b7280", marginBottom: "0.5rem" }}>Niveau</h3>
-            <p style={{ fontSize: "1.2rem",
-              color: "#4caf50"
-            }}>CE1 - Multiplication Difficile</p>
-          </div>
-        </div>
-
-        <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
-          <Link 
-            href="/selection-niveau"
-            style={{
-              display: "inline-block",
-              padding: "0.75rem 1.5rem",
-              backgroundColor: "#3b82f6",
-              color: "white",
-              borderRadius: "30px",
-              textDecoration: "none",
-              fontSize: "1.1rem",
-              transition: "all 0.3s",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-            }}
-          >
-            Nouveau jeu
-          </Link>
-          <Link 
-            href="/" 
-            style={{
-              display: "inline-block",
-              padding: "0.75rem 1.5rem",
-              backgroundColor: "#4caf50",
-              color: "white",
-              borderRadius: "30px",
-              textDecoration: "none",
-              fontSize: "1.1rem",
-              transition: "all 0.3s",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-            }}
-          >
-            Retour à l'accueil
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default function RecapPage() {
-  return (
-    <Suspense fallback={<div style={{
-      display: "flex",
       justifyContent: "center",
-      alignItems: "center",
-      height: "100vh",
-      fontFamily: "'Comic Sans MS', cursive, sans-serif",
-      background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
-    }}>Chargement des résultats...</div>}>
-      <RecapContent />
-    </Suspense>
+      minHeight: "100vh",
+      textAlign: "center",
+      padding: "20px",
+    }}>
+      <div style={{ marginBottom: "2rem", flexDirection: "row" }}>
+        <QTRobot expression={currentExpression} />
+        
+      </div>
+
+      <h1 style={{
+  display: "inline-block",
+  backgroundColor: "rgba(255, 255, 255, 0.7)",
+  padding: "15px 30px",
+  borderRadius: "25px",
+  fontFamily: "Arial Rounded MT Bold, sans-serif",
+  fontSize: "2rem",
+  color: "#2b4a2e",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+  backdropFilter: "blur(4px)",
+  marginBottom: "2rem",
+}}>
+  Bienvenue sur QT Robot Math Tutor
+</h1>
+
+<Link href="/saisie-prenom" className="button" style={{ padding: "10px 20px", backgroundColor: "#4CAF50", color: "white", borderRadius: "5px" }}>
+  Commencer
+</Link>
+
+      <Link href="/about" className="button" style={{ padding: "10px 20px", backgroundColor: "#4CAF50", color: "white", borderRadius: "5px" }}>About</Link>
+      
+    </div>
   );
 }
