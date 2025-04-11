@@ -1,3 +1,5 @@
+"use client"; // Add this directive at the very top
+
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
@@ -116,5 +118,5 @@ export default function SaisiePrenom() {
         </form>
       </div>
     </div>
-  )
+  );
 }
