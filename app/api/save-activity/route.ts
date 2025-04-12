@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       // Créer une nouvelle session
       session = await Session.create({
         prenom,
-        age, // ✅ enregistrement de l'âge
+        age, 
         niveau,
         expression: "",
         duration: 0,

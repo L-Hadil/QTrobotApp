@@ -147,7 +147,7 @@ export default function FeedbackPage() {
   </p>
 )}
 
-{/* === Ajoute ce bouton ici === */}
+{}
 <button
   onClick={() => {
     window.location.href = "/saisie-prenom";

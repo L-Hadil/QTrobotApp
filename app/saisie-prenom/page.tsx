@@ -83,8 +83,8 @@ export default function SaisiePrenom() {
               color: "black",
               boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
             }}
-            min={3}
-            max={12}
+            min={2}
+            max={15}
             required
           />
           <br />
