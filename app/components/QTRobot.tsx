@@ -43,20 +43,21 @@ const QTRobot = ({ expression }: QTRobotProps) => {
   }, [expression]);
 
   return (
-    <div className="relative w-[300px] h-auto mb-8">
-      <img
-        src="https://docs.luxai.com/assets/images/qt_head-cd1f3ecbe79fb245a572462c68f363f1.png"
-        alt="QTrobot Container"
-        className="w-full h-auto"
-      />
-            <img
-        src={gifUrl}
-        alt={`QT Robot Expression - ${expression}`}
-        className="absolute top-[81px] left-[43px] w-[210px] h-auto rounded-xl"
-      />
-
-    </div>
-  );
-};
+    <div className="relative w-[200px] h-auto mb-8">
+   <img
+     src="images/IMG_20250412_163026.png"
+     alt="QTrobot animation"
+     className="w-full h-auto"
+   />
+ 
+             <img
+         src={gifUrl}
+         alt={`QT Robot Expression - ${expression}`}
+         className="absolute top-[42px] left-[55px] w-[115px] h-auto rounded-xl"
+       />
+ 
+     </div>
+   );
+ };
 
 export default QTRobot;
