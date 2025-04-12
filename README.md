@@ -20,7 +20,7 @@ QT Robot Math Tutor est une application web interactive conçue pour aider les e
   - Bouton "Terminer la session" disponible à tout moment
 
 ### Système de feedback
-- Page de feedback à la fin de chaque session
+- Page de feedback à la fin de chaque session permet d'enregistrer la sessios
 - Retour à l'accueil après soumission du feedback
 
 ### Compagnon robot QT
