@@ -18,36 +18,39 @@ export default function FeedbackPage() {
   const [selected, setSelected] = useState<string | null>(null);
   const [currentExpression, setCurrentExpression] = useState<"talking" | "neutral">("neutral");
   const { speak } = useSpeech();
-  const storedAge = localStorage.getItem("age") || "0";
-
+  const [storedAge, setStoredAge] = useState("0");
 
   useEffect(() => {
+    // This useEffect runs only on the client side
     const storedPrenom = localStorage.getItem("prenom") || "anonyme";
+    const age = localStorage.getItem("age") || "0";
+    
     setPrenom(storedPrenom);
+    setStoredAge(age);
     stopTimer();
 
     speak(
-      `Merci ${storedPrenom} d’avoir utilisé cutie Robot. Tu as passé ${minutes} minutes et ${seconds} secondes avec nous. Dis-nous ce que tu as pensé de cette aventure en choisissant une des expressions ci-dessous.`,
+      `Merci ${storedPrenom} d'avoir utilisé QT Robot. Tu as passé ${minutes} minutes et ${seconds} secondes avec nous. Dis-nous ce que tu as pensé de cette aventure en choisissant une des expressions ci-dessous.`,
       () => setCurrentExpression("talking"),
       () => setCurrentExpression("neutral")
     );
-  }, []);
+  }, [minutes, seconds, stopTimer, speak]);
 
- const handleSelect = async (expr: string) => {
-  setSelected(expr);
-
-  const niveau = localStorage.getItem("niveau") || "Inconnu";
-  const age = parseInt(localStorage.getItem("age") || "0"); 
-
-  await updateSessionFeedback({
-    prenom,
-    age, 
-    niveau,
-    expression: expr,
-    duration: minutes * 60 + seconds,
-  });
-};
-
+  const handleSelect = async (expr: string) => {
+    setSelected(expr);
+  
+    const niveau = localStorage.getItem("niveau") || "Inconnu";
+    const age = parseInt(storedAge); // Now using the state value
+    
+    await updateSessionFeedback({
+      prenom,
+      age,
+      niveau,
+      expression: expr,
+      duration: minutes * 60 + seconds,
+    });
+  };
+  
   
 
   return (
