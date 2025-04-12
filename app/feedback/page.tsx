@@ -21,20 +21,31 @@ export default function FeedbackPage() {
   const [storedAge, setStoredAge] = useState("0");
 
   useEffect(() => {
-    // This useEffect runs only on the client side
     const storedPrenom = localStorage.getItem("prenom") || "anonyme";
     const age = localStorage.getItem("age") || "0";
-    
+  
     setPrenom(storedPrenom);
     setStoredAge(age);
     stopTimer();
-
+  
+    let isCancelled = false;
+  
     speak(
-      `Merci ${storedPrenom} d'avoir utilisé QT Robot. Tu as passé ${minutes} minutes et ${seconds} secondes avec nous. Dis-nous ce que tu as pensé de cette aventure en choisissant une des expressions ci-dessous.`,
-      () => setCurrentExpression("talking"),
-      () => setCurrentExpression("neutral")
+      `Merci ${storedPrenom} d'avoir utilisé cutie Robot. Tu as passé ${minutes} minutes et ${seconds} secondes avec nous. Dis-nous ce que tu as pensé de cette aventure en choisissant une des expressions ci-dessous.`,
+      () => {
+        if (!isCancelled) setCurrentExpression("talking");
+      },
+      () => {
+        if (!isCancelled) setCurrentExpression("neutral");
+      }
     );
-  }, [minutes, seconds, stopTimer, speak]);
+  
+    return () => {
+      isCancelled = true;
+      window.speechSynthesis.cancel();
+    };
+  }, []);
+  
 
   const handleSelect = async (expr: string) => {
     setSelected(expr);
