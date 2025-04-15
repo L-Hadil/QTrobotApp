@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fredoka } from "next/font/google";
 import "./globals.css";
-import { TimerProvider } from "@/app/context/TimerContext"; 
+import { TimerProvider } from "@/app/context/TimerContext";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const fredoka = Fredoka({
   subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-fredoka",
 });
 
 export const metadata: Metadata = {
@@ -24,9 +21,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <TimerProvider> {}
+    <html lang="fr" className={fredoka.variable}>
+      <body className="antialiased">
+        <TimerProvider>
           <header
             style={{
               backgroundColor: "transparent",
@@ -40,7 +37,7 @@ export default function RootLayout({
                 backgroundColor: "rgba(255, 255, 255, 0.6)",
                 padding: "10px 20px",
                 borderRadius: "20px",
-                fontFamily: "Arial Rounded MT Bold, sans-serif",
+                fontFamily: "'Fredoka', sans-serif",
                 fontSize: "2rem",
                 color: "#2b4a2e",
                 boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",

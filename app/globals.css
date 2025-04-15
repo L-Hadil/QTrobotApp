@@ -1,41 +1,38 @@
 @import "tailwindcss";
 
+/* Variables globales */
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
 
-:root {
+  /* ✅ Utilisation de Fredoka comme police principale */
+  --font-sans: var(--font-fredoka), sans-serif;
+  --font-mono: monospace;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
-
+/* Style global du body */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, 'Times New Roman', Times, serif;
   background-image: url('/images/background-image.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+
+  font-family: var(--font-sans); /* ✅ Appliqué à tout le texte */
   color: white;
-  font-family: var(--font-geist-sans);
-  
 }
 
+/* Titres */
 header h1 {
   font-size: 2em;
   color: #4CAF50;
 }
 
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
+/* Liens */
 a {
   text-decoration: none;
   color: #4CAF50;
@@ -45,10 +42,13 @@ a:hover {
   color: #3e8e41;
 }
 
-div {
-  position: "relative"
+/* Listes */
+ul {
+  list-style-type: none;
+  padding: 0;
 }
 
+/* Formulaires */
 form input {
   padding: 10px;
   font-size: 1.2em;
@@ -67,6 +67,7 @@ form button:hover {
   background-color: #45a049;
 }
 
+/* Animation QT Robot */
 @keyframes bounce {
   0%, 100% {
     transform: translateY(0);
@@ -80,7 +81,7 @@ form button:hover {
   animation: bounce 2s infinite;
 }
 
-
+/* Boutons */
 .button {
   background-color: #ff6f61;
   color: white;
@@ -90,12 +91,12 @@ form button:hover {
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  min-width: 150px; /* Largeur minimale */
+  min-width: 150px;
   text-align: center;
   display: flex;
-  flex-direction: column; /* Alignement vertical */
-  align-items: center; /* Centrer horizontalement */
-  justify-content: center; /* Centrer verticalement */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   margin: 5px;
 }
 
@@ -104,6 +105,6 @@ form button:hover {
 }
 
 .button img {
-  width: 50px; /* Taille de l'image */
-  margin-bottom: 10px; /* Espace entre l'image et le texte */
+  width: 50px;
+  margin-bottom: 10px;
 }
