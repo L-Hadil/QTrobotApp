@@ -1,6 +1,6 @@
 > ⚠️ Recommandation : Pour une meilleure expérience utilisateur, il est conseillé d’utiliser Google Chrome comme navigateur.
 
-## 🧠 Présentation du projet
+## Présentation du projet
 
 QT Robot Math Tutor est une application web interactive conçue pour aider les enfants de CP et CE1 (6–8 ans) à apprendre les fondamentaux des mathématiques de manière ludique avec leur compagnon QT Robot.
 
@@ -14,7 +14,7 @@ Fonctionnalités principales :
   - 12 expressions émotionnelles animées
   - Feedback émotionnel et vocal selon les réponses de l’enfant
 
-## ⚙️ Stack technique et fonctionnalités
+## Stack technique et fonctionnalités
 
 - Frontend : Next.js (React) avec TypeScript
 - Style : CSS Modules
