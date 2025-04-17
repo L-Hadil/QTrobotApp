@@ -97,7 +97,7 @@ Entrez l’adresse suivante dans la barre d’URL de votre navigateur :
 
 
 
-> 🚀 **L’application est déjà déployée** ! Vous pouvez y accéder directement via le lien suivant :  
-👉 [https://qtrobotapp.vercel.app/](https://qtrobotapp.vercel.app/)
+> 🚀 **L’application est déjà déployée** Vous pouvez y accéder directement via le lien suivant :  
+ [https://qtrobotapp.vercel.app/](https://qtrobotapp.vercel.app/)
 
 >N’hésitez pas à essayer cette adresse si vous souhaitez voir la version en ligne de l’application.
