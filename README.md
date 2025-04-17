@@ -1,95 +1,68 @@
-# QT Robot Math Tutor
+> ⚠️ Recommandation : Pour une meilleure expérience utilisateur, il est conseillé d’utiliser Google Chrome comme navigateur.
 
-## Description
-QT Robot Math Tutor est une application web interactive conçue pour aider les enfants du CP et du CE1 à apprendre les concepts mathématiques fondamentaux de manière ludique avec leur compagnon robot QT.
+## 🧠 Présentation du projet
 
-## Fonctionnalités principales
+QT Robot Math Tutor est une application web interactive conçue pour aider les enfants de CP et CE1 (6–8 ans) à apprendre les fondamentaux des mathématiques de manière ludique avec leur compagnon QT Robot.
 
-### Système d'apprentissage interactif
-- Exercices interactifs d'addition, de soustraction, de mesures et de géométrie
-- Trois niveaux de difficulté (Facile, Moyen, Difficile)
-- Suivi des progrès avec compteur de bonnes/mauvaises réponses
-- Feedback immédiat après chaque réponse
+Fonctionnalités principales :
+- Exercices d’addition, soustraction, géométrie et mesures
+- Trois niveaux de difficulté : Facile, Moyen, Difficile
+- Suivi des progrès avec feedback immédiat
+- Minuteur de session et personnalisation du profil
+- Robot QT avec :
+  - Synthèse vocale (guidage oral)
+  - 12 expressions émotionnelles animées
+  - Feedback émotionnel et vocal selon les réponses de l’enfant
 
-### Personnalisation
-- **Enregistrement du profil** : 
-  - Saisie du nom et de l'âge de l'enfant au démarrage
-  - Adaptation du contenu en fonction du niveau scolaire (CP ou CE1)
-- **Timer de session** :
-  - Chronomètre activé dès la sélection du niveau (CP/CE1)
-  - Bouton "Terminer la session" disponible à tout moment
+## ⚙️ Stack technique et fonctionnalités
 
-### Système de feedback
-- Page de feedback à la fin de chaque session permet d'enregistrer la sessios
-- Retour à l'accueil après soumission du feedback
+- Frontend : Next.js (React) avec TypeScript
+- Style : CSS Modules
+- Interactivité :
+  - API Web Speech pour la synthèse vocale
+  - GIFs animés pour les expressions du robot
+- Logique de session :
+  - Enregistrement du nom et âge de l’enfant
+  - Timer lancé automatiquement après le choix du niveau (CP/CE1)
+  - Sélection d’exercices par thème et difficulté
+- Système de feedback :
+  - Formulaire d’avis en fin de session
+  - Retour à l’accueil après validation
+- Déploiement : Application hébergée sur Vercel
 
-### Compagnon robot QT
-- **Text-to-Speech** : Le robot parle pour guider l'enfant
-- **12 expressions émotionnelles** :
-  - Heureux, triste, confus, en colère
-  - Peur, parler, bâiller, embrasser
-  - Cri, neutre, dégoûté, pleurer
-- Interactions adaptées :
-  - Encouragements pour les bonnes réponses
-  - Conseils en cas d'erreur
-  - Feedback émotionnel immédiat
+## 🚀 Installation & Lancement
 
-## Contenu éducatif
+> ⚠️ Assurez-vous d’avoir Node.js (version 16 ou supérieure) installé sur votre machine.  
+> Vous pouvez vérifier avec la commande :
+node -v
+Si Node.js est bien installé ou existe sur votre machine alors:
+# 1. Cloner le dépôt
+git clone https://github.com/L-Hadil/QTrobotApp
 
-### Niveau CP
-- Addition de base (jusqu'à 10)
-- Soustractions simples
-- Comparaisons de tailles et longueurs
-- Reconnaissance des formes géométriques de base
-- Mesures simples (longueur, poids, contenance)
+# 2. Accéder au dossier du projet
+cd QTrobotApp
 
-### Niveau CE1
-- Additions avec nombres à deux chiffres
-- Soustractions avec retenues
-- Problèmes mathématiques simples
-- Concepts de géométrie avancés
-- Mesures et conversions simples
+# 3. Installer les dépendances
+npm install
 
-## Comment utiliser l'application
+# 4. Lancer le serveur de développement
+npm run dev
+Vous devriez voir les logs suivants s’afficher dans votre terminal :
 
-1. **Démarrage** :
-   - Accédez à l'application via ce lien : 
-   - Clique sur "Commencer"
-   - Saisis ton nom et ton âge
-   - Le robot QT te souhaite la bienvenue (text-to-speech)
+   ▲ Next.js 15.2.2 (Turbopack)
+   - Local :       http://localhost:3000
+   - Network :     http://172.24.91.195:3000
 
-2. **Sélection du niveau** :
-   - Choisis entre CP ou CE1
-   - Un timer démarre automatiquement
+ ✓ Démarrage en cours...
+Pour une expreince avec base de donnés
+nano .env.local
 
-3. **Choix des exercices** :
-   - Sélectionne une matière :
-     - Additions
-     - Soustractions
-     - Mesures
-     - Géométrie
-   - Choisis un niveau de difficulté :
-     - Facile
-     - Moyen
-     - Difficile
+# Ajouter cette ligne de code 
+MONGODB_URI=(VOTRE_TOKEN)
 
-4. **Pendant la session** :
-   - Le robot guide vocalement à travers les exercices
-   - Tu peux à tout moment :
-     - Cliquer sur "Terminer la session"
-     - Revenir au menu principal
+Vous devriez voir les logs suivants s’afficher dans votre terminal si la connexion à la base de données est correctement configurée via .env.local :
 
-5. **Fin de session** :
-   - Page de feedback pour donner ton avis
-   - Bouton pour retourner à l'accueil
-
-## Détails techniques
-
-### Stack technique
-- **Frontend** : Next.js (React) avec TypeScript
-- **Style** : CSS Modules
-- **Interactivité** :
-  - API Web Speech pour le text-to-speech
-  - Animations GIF pour les expressions du robot
-- **Suivi du temps** : Timer avec API Web
-- **Déploiement** : Vercel
+   ▲ Next.js 15.2.2 (Turbopack)
+   - Local :        http://localhost:3000
+   - Network :      http://172.24.91.195:3000
+   - Environnement : .env.local
