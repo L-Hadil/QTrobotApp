@@ -2,7 +2,7 @@
 
 >🚫 **Attention** : Évitez d’utiliser le réseau **Eduroam** de l’université — certaines connexions peuvent être bloquées et empêcher le bon fonctionnement de l’application (ex : chargement des voix, accès à la base de données).
 
-## 🧠 Présentation du projet
+## Présentation du projet
 
 **QT Robot Math Tutor** est une application web interactive conçue pour aider les enfants de **CP et CE1** (5–12 ans) à apprendre les **fondamentaux des mathématiques** de manière ludique avec leur compagnon **QT Robot**.
 
@@ -16,7 +16,7 @@ Fonctionnalités principales :
   - **12 expressions émotionnelles animées**
   - Feedback émotionnel et vocal selon les réponses de l’enfant
 
-## ⚙️ Stack technique et fonctionnalités
+## Stack technique et fonctionnalités
 
 - **Frontend** : `Next.js` (React) avec `TypeScript`
 - **Style** : `CSS Modules`
@@ -32,7 +32,7 @@ Fonctionnalités principales :
   - Retour à l’accueil après validation
 - **Déploiement** : Application hébergée sur **Vercel**
 
-## 🚀 Installation & Lancement
+## Installation & Lancement
 
 > ⚠️ Assurez-vous d’avoir **Node.js** (version 16 ou supérieure) installé sur votre machine.  
 > Vous pouvez vérifier avec la commande :
@@ -78,20 +78,20 @@ Vous devriez voir les logs suivants s’afficher dans votre terminal si la conne
    - Network :      http://172.24.91.195:3000
    - Environnement : .env.local
 ```
-## 🌐 Accéder à l'application
+## Accéder à l'application
 
-### 🖥️ État 1 — Depuis la machine locale
+### État 1 — Depuis la machine locale
 
 Entrez l’adresse suivante dans la barre d’URL de votre navigateur :  
-👉 `http://localhost:3000`
+ `http://localhost:3000`
 
 ---
 
-### 📱 État 2 — Depuis un autre appareil sur le même réseau
+### État 2 — Depuis un autre appareil sur le même réseau
 
 1. Assurez-vous que **votre ordinateur et l’appareil** (smartphone, tablette…) sont **connectés au même réseau Wi-Fi**.
 2. Repérez l’**adresse IP réseau** affichée dans le terminal, par exemple :  
-   👉 `http://172.24.91.195:3000`
+    `http://172.24.91.195:3000`
 3. Saisissez cette adresse dans le navigateur de l’autre appareil.
 
 
